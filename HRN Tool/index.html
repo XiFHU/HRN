@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>High-Risk Network Tool</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root { --bg:#f5f6f8; --panel:#fff; --ink:#1f2933; --muted:#6b7785; --line:#dfe3e8; --accent:#0b6e99; --accent-d:#085577; --warn:#b45309; --bad:#b42318; --ok:#157347; }
+  * { box-sizing:border-box; }
+  html, body { height:100%; margin:0; font:14px/1.4 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color:var(--ink); background:var(--bg); }
+  header { height:52px; display:flex; align-items:center; gap:18px; padding:0 16px; background:#12263a; color:#fff; }
+  header h1 { font-size:16px; margin:0; font-weight:600; white-space:nowrap; }
+  .steps { display:flex; gap:6px; }
+  .step-pill { border:1px solid #3b5671; background:transparent; color:#c9d6e2; padding:5px 12px; border-radius:16px; cursor:pointer; font-size:13px; }
+  .step-pill.active { background:#fff; color:#12263a; border-color:#fff; font-weight:600; }
+  .step-pill.done { border-color:#4fb286; color:#bfe8d3; }
+  .step-pill.active.done { color:#12263a; }
+  .step-pill:disabled { opacity:.35; cursor:not-allowed; }
+  main { display:flex; height:calc(100% - 52px); }
+  aside { width:560px; min-width:320px; flex:none; overflow-y:auto; background:var(--panel); padding:16px; }
+  #dragbar { flex:none; width:7px; cursor:col-resize; background:var(--line); border-left:1px solid #cfd5dc; border-right:1px solid #cfd5dc; position:relative; touch-action:none; }
+  #dragbar::after { content:""; position:absolute; top:50%; left:2px; width:1px; height:36px; margin-top:-18px; border-left:1px dotted #8a97a6; border-right:1px dotted #8a97a6; width:1px; }
+  #dragbar:hover, #dragbar.dragging { background:#b9d6e6; }
+  body.resizing, body.resizing * { cursor:col-resize !important; user-select:none !important; }
+  #map { flex:1; min-width:150px; }
+  h2 { font-size:16px; margin:0 0 4px; }
+  h3 { font-size:13px; margin:16px 0 6px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
+  p.hint { color:var(--muted); margin:2px 0 10px; }
+  label { display:block; font-weight:600; margin:10px 0 3px; font-size:13px; }
+  input[type=text], input[type=number], select { width:100%; padding:6px 8px; border:1px solid var(--line); border-radius:6px; font:inherit; background:#fff; }
+  input[type=file] { width:100%; }
+  .row { display:flex; gap:10px; } .row > * { flex:1; }
+  button.btn { background:var(--accent); color:#fff; border:0; border-radius:6px; padding:8px 14px; cursor:pointer; font:inherit; font-weight:600; }
+  button.btn:hover { background:var(--accent-d); }
+  button.btn:disabled { background:#9db4c0; cursor:not-allowed; }
+  button.btn.secondary { background:#fff; color:var(--accent); border:1px solid var(--accent); }
+  button.link { background:none; border:0; color:var(--accent); cursor:pointer; padding:0; font:inherit; text-decoration:underline; }
+  .actions { display:flex; gap:8px; margin-top:14px; align-items:center; flex-wrap:wrap; }
+  .status { font-size:12.5px; margin-top:4px; color:var(--muted); }
+  .status.ok { color:var(--ok); } .status.err { color:var(--bad); } .status.warn { color:var(--warn); }
+  .card { border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-top:12px; background:#fafbfc; }
+  .card b { font-variant-numeric:tabular-nums; }
+  .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px 12px; }
+  .checklist { max-height:260px; overflow-y:auto; border:1px solid var(--line); border-radius:6px; padding:4px 6px; }
+  .checklist label { font-weight:400; margin:0; padding:3px 2px; display:flex; gap:8px; align-items:center; }
+  .checklist label span.n { margin-left:auto; color:var(--muted); font-variant-numeric:tabular-nums; }
+  table.factors { width:100%; border-collapse:separate; border-spacing:0; font-size:12px; }
+  table.factors th { font-weight:700; color:#fff; background:#44546a; padding:3px 5px; text-align:center; border-right:1px solid #6b7b90; border-bottom:1px solid #6b7b90; white-space:nowrap; position:sticky; z-index:2; }
+  table.factors thead tr:first-child th { top:0; height:24px; }
+  table.factors thead tr:nth-child(2) th { top:24px; font-weight:600; background:#56677e; }
+  table.factors th.l { text-align:left; }
+  table.factors td { padding:2px 5px; text-align:right; font-variant-numeric:tabular-nums; border-bottom:1px solid #e3e7eb; border-right:1px solid #eef0f2; white-space:nowrap; }
+  table.factors td.f { text-align:left; white-space:normal; min-width:110px; }
+  table.factors td.cat { text-align:left; vertical-align:middle; background:#fff; border-right:1px solid var(--line); border-bottom:1px solid #b9c2cc; white-space:normal; min-width:90px; font-weight:600; }
+  table.factors td.cb { text-align:center; padding:2px 3px; }
+  table.factors tr.lastrow td { border-bottom:1px solid #b9c2cc; }
+  table.factors tr.allrow td { background:#d9dee5; font-weight:700; border-bottom:2px solid #8a97a6; }
+  table.factors td.gs { border-left:2px solid #c5ccd4; }
+  table.factors tr.sel td:not(.cat) { background:#e3f1fa; }
+  table.factors tr.dim td:not(.cat) { color:#8a97a6; }
+  table.factors td.xn-hi { font-weight:600; }
+  table.factors td.xn-best { font-weight:700; color:#0b6e99; background:#e3f1fa; }
+  table.factors td.p-hi { color:#0d5c32; font-weight:700; background:#dff3e6; }
+  table.factors td.p-mid { color:#7a5300; background:#fff6dc; }
+  table.factors tr.sel td.p-hi { background:#cdebd8; }
+  .badge { display:inline-block; padding:1px 8px; border-radius:10px; font-size:11px; font-weight:700; }
+  .badge.strong { background:#d7f0e0; color:#14573a; } .badge.moderate { background:#fff0c9; color:#7a5300; } .badge.weak { background:#eceff2; color:#6b7785; }
+  .explain { background:#f1f7fb; border:1px solid #cfe2ee; border-radius:8px; padding:8px 12px; margin:8px 0; font-size:12.5px; }
+  .explain code { background:#fff; border:1px solid #d8e3ea; border-radius:4px; padding:0 4px; }
+  .tag { font-size:10.5px; padding:1px 6px; border-radius:8px; margin-left:6px; font-weight:600; }
+  .tag.road { background:#e3efe6; color:#1c5a34; } .tag.crash { background:#fde8d4; color:#8a4a12; }
+  .scroll-table { max-height:58vh; overflow:auto; border:1px solid var(--line); border-radius:6px; }
+  .layer-row { display:flex; align-items:center; gap:8px; padding:3px 0; }
+  .swatch { width:22px; height:6px; border-radius:3px; display:inline-block; }
+  .layer-row .n { margin-left:auto; color:var(--muted); font-variant-numeric:tabular-nums; }
+  ol.top { margin:6px 0 0; padding-left:20px; } ol.top li { margin:3px 0; cursor:pointer; } ol.top li:hover { color:var(--accent); }
+  details { margin-top:10px; } summary { cursor:pointer; color:var(--muted); }
+  .analyze { background:#f1f7fb; border:1px solid #cfe2ee; border-radius:8px; padding:8px 12px; margin:10px 0 4px; }
+  .analyze label { margin-top:0; }
+  .set-tabs { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+  .set-tab { border:1px solid var(--line); background:#fff; border-radius:14px; padding:3px 10px; cursor:pointer; font:inherit; font-size:12.5px; color:var(--ink); }
+  .set-tab.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+  .set-tab .n { margin-left:5px; font-size:11px; opacity:.8; }
+  .set-tab.has { border-color:#4fb286; }
+  .hidden { display:none !important; }
+  .busy { cursor:progress; }
+  .filter-box { background:#fff; padding:10px 12px; border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,.35); width:280px; font-size:12.5px; margin-bottom:22px; }
+  .filter-box .t { font-weight:700; font-size:13px; margin-bottom:4px; }
+  .filter-box input[type=range] { width:100%; margin:6px 0 2px; accent-color:#d73027; }
+  .chips { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+  .chip { border:2px solid #ccc; background:#fff; border-radius:14px; padding:2px 9px; cursor:pointer; font:inherit; color:#555; }
+  .chip.on { color:#fff; }
+  .chip small { opacity:.85; margin-left:3px; }
+  .tiles-light-grey { filter:grayscale(1) brightness(1.12) contrast(.8); }
+  .tiles-dark-grey { filter:grayscale(1) invert(1) brightness(.85) contrast(.9); }
+  .legend-box { background:#fff; padding:6px 10px; border-radius:6px; box-shadow:0 1px 4px rgba(0,0,0,.3); font-size:12px; line-height:1.5; }
+  .legend-box i { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+</style>
+</head>
+<body>
+<header>
+  <h1>High-Risk Network Tool</h1>
+  <div class="steps" id="stepper"></div>
+</header>
+<main>
+  <aside id="panel">
+
+    <!-- STEP 1 -->
+    <section data-step="1">
+      <h2>1 &middot; Upload data &amp; build the map</h2>
+      <p class="hint">Crash table (CSV / XLSX with coordinates) and road geometry (GeoJSON, GeoPackage, or zipped shapefile).</p>
+      <label>Crash file</label>
+      <input type="file" id="crashFile" accept=".csv,.tsv,.txt,.xlsx,.xlsm">
+      <div class="status" id="crashStatus"></div>
+      <label>Road file</label>
+      <input type="file" id="roadFile" accept=".geojson,.json,.gpkg,.zip">
+      <div class="status" id="roadStatus"></div>
+
+      <div id="coordBox" class="hidden">
+        <h3>Crash coordinates</h3>
+        <div class="row">
+          <div><label>Latitude / Y column</label><select id="latCol"></select></div>
+          <div><label>Longitude / X column</label><select id="lonCol"></select></div>
+        </div>
+        <div class="row">
+          <div><label>Coordinate system (EPSG)</label><input type="text" id="crashCrs" value="4326"></div>
+          <div><label>Max snap distance (ft)</label><input type="number" id="tolFt" value="100" min="5" max="5280"></div>
+        </div>
+        <div class="status warn" id="crsWarn"></div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="buildBtn" disabled>Build map</button>
+        <span class="status" id="buildStatus"></span>
+      </div>
+      <div class="card hidden" id="mapStats"></div>
+      <div class="actions"><button class="btn secondary hidden" id="to2">Next: choose crash type &rarr;</button></div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section data-step="2" class="hidden">
+      <h2>2 &middot; Choose the crash type to focus on</h2>
+      <p class="hint">Pick the column that holds the crash type (collision manner, pedestrian flag, first harmful event, ...) then tick the values to study.</p>
+      <label>Crash-type column</label>
+      <select id="focusCol"></select>
+      <div class="actions" style="margin-top:8px">
+        <button class="link" id="focusAll">select all</button><button class="link" id="focusNone">clear</button>
+      </div>
+      <div class="checklist" id="focusVals"></div>
+      <label>Name for this group (table heading)</label>
+      <input type="text" id="g1Name" value="Focus" placeholder="e.g. Severe">
+
+      <details id="g2Box">
+        <summary>Optional: a second group shown in the factor table (e.g. KSI = K + A)</summary>
+        <p class="hint" style="margin-top:6px">Adds KSI-style columns to the Step 3 table, counted among the crashes being analysed. When a KABCO severity column is found, K + A (and fatal codes such as FAT) are ticked automatically. Factors are still found and ranked with the group above.</p>
+        <label>Name</label>
+        <input type="text" id="g2Name" value="KSI">
+        <label>Column</label>
+        <select id="g2Col"></select>
+        <div class="checklist" id="g2Vals" style="margin-top:6px"></div>
+      </details>
+
+      <details id="extraBox">
+        <summary>Optional: restrict to a subset (e.g. injury severity K &amp; A only)</summary>
+        <label>Column</label>
+        <select id="extraCol"></select>
+        <div class="checklist" id="extraVals" style="margin-top:6px"></div>
+      </details>
+      <div class="card" id="focusSummary">Nothing selected yet.</div>
+      <div class="actions"><button class="btn" id="to3" disabled>Next: scan for factors &rarr;</button></div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section data-step="3" class="hidden">
+      <h2>3 &middot; Find the factors linked to these crashes</h2>
+      <p class="hint">Every crash and road column is scanned and every value is listed. Rows in dark text are where your selected crash type happens <b>more often than normal</b>; grey rows are not over-represented (or have too few crashes).</p>
+      <details class="explain" open>
+        <summary style="color:inherit;font-weight:600">How to read the table</summary>
+        <div style="margin-top:6px">
+          <b>Crash frequency</b> &ndash; all crashes meeting the condition, split by the column you pick below (e.g. K / A / B / C / O).<br>
+          <b>Total #, %</b> &ndash; all crashes meeting the condition, and their share of all crashes.<br>
+          <b>Group #, %</b> &ndash; crashes of the group meeting the condition, and their share of the whole group.<br>
+          <b>&times; normal</b> &ndash; how many times more common the group is under the condition than overall (1.00 = no difference, 2.00 = twice, 0.50 = half). <b>&#9733;</b> marks the strongest clear condition in each category (highest &times; normal with Prob. &ge; 95%) &ndash; use it to choose between several 100% rows.<br>
+          <b>Prob.</b> &ndash; how sure we are the group is over-represented under the condition (Poisson test against the overall rate).
+          <span style="background:#dff3e6;color:#0d5c32;font-weight:700;padding:0 4px">&ge; 95%</span> clear,
+          <span style="background:#fff6dc;color:#7a5300;padding:0 4px">&ge; 85%</span> possible, lower = no real difference.<br>
+          Tick a row to use it as a factor. <i>Hover over any row for a plain-English sentence.</i>
+        </div>
+      </details>
+      <div class="analyze">
+        <label>Crash type to work on</label>
+        <p class="hint" style="margin:0 0 4px">Different crash types usually have different factors. Analyze each type on its own and pick its factors, or use one set of factors for all selected types. Each choice keeps its own ticks.</p>
+        <div class="set-tabs" id="setTabs"></div>
+      </div>
+      <div class="row">
+        <div><label>Crash frequency columns</label><select id="byCol"></select></div>
+        <div><label>Min. crashes per condition</label><input type="number" id="minFocus" value="5" min="1"></div>
+        <div><label>Max categories per column</label><input type="number" id="maxLevels" value="40" min="2"></div>
+      </div>
+      <div class="actions"><button class="btn" id="scanBtn">Scan columns</button><span class="status" id="scanStatus"></span></div>
+      <div id="scanOut" class="hidden">
+        <div class="card" id="scanSummary"></div>
+        <div class="actions">
+          <button class="btn secondary" id="xlsxOne">Download Excel (this crash type)</button>
+          <button class="btn secondary" id="xlsxAll">Download Excel (all crash types)</button>
+          <span class="status" id="xlsxStatus"></span>
+        </div>
+        <h3>Choose factors</h3>
+        <label style="display:flex;gap:6px;font-weight:400;margin-top:0"><input type="checkbox" id="showAll" checked> show every value (uncheck to list only over-represented conditions)</label>
+        <div class="actions" style="margin-top:6px">
+          <span>Sort categories</span>
+          <select id="catSort" style="width:auto">
+            <option value="strength">Strongest first</option>
+            <option value="name">Name (A&ndash;Z)</option>
+          </select>
+        </div>
+        <div class="actions" style="margin-top:6px">
+          <span>Tick rows where Prob. &ge;</span>
+          <input type="number" id="ruleProb" value="95" min="0" max="100" style="width:56px"><span>% and % of group &ge;</span>
+          <input type="number" id="ruleShare" value="5" min="0" max="100" style="width:56px"><span>%</span>
+          <button class="btn secondary" id="ruleBtn">Apply</button>
+        </div>
+        <div class="actions" style="margin-top:6px">
+          <span>or the best condition from the top</span>
+          <input type="number" id="topN" value="5" min="1" style="width:56px">
+          <span>columns</span>
+          <button class="btn secondary" id="topNBtn">Apply</button>
+          <button class="link" id="clearSel">clear</button>
+        </div>
+        <div class="scroll-table" style="margin-top:8px"><table class="factors" id="factorTable"></table></div>
+        <div class="status" id="selCount"></div>
+        <details><summary id="skipSummary">Skipped columns</summary><div id="skipList" class="status"></div></details>
+        <div class="actions"><button class="btn" id="to4" disabled>Next: build final map &rarr;</button></div>
+      </div>
+    </section>
+
+    <!-- STEP 4 -->
+    <section data-step="4" class="hidden">
+      <h2>4 &middot; Final map</h2>
+      <p class="hint">Roads are coloured by how many of your selected factors they meet. Use the filters to focus the map.</p>
+      <div id="modeBox" class="hidden">
+        <label>Factors to apply</label>
+        <select id="setMode">
+          <option value="each">Each crash type with its own factors</option>
+          <option value="all">Same factors for all selected types</option>
+        </select>
+      </div>
+      <div class="card" id="factorList" style="max-height:220px;overflow-y:auto"></div>
+
+      <h3>Crash types</h3>
+      <div class="checklist" id="typeChecks"></div>
+
+      <div class="row">
+        <div><label>Min. crashes for a crash-based factor</label><input type="number" id="minCrashes" value="1" min="1"></div>
+        <div style="display:flex;align-items:flex-end"><label style="display:flex;gap:6px;font-weight:400"><input type="checkbox" id="includeEmpty"> include roads with no focus crashes</label></div>
+      </div>
+
+      <p class="hint" style="margin-top:14px">Use the <b>live filter on the map</b> (bottom-left) to show segments by number of factors met.</p>
+      <div class="status" id="scoreStatus"></div>
+
+      <h3>Highest ranked segments</h3>
+      <ol class="top" id="topRoads"></ol>
+      <div class="actions">
+        <button class="btn secondary" id="expCsv">Export CSV</button>
+        <button class="btn secondary" id="expGeo">Export GeoJSON</button>
+      </div>
+
+      <h3>Report</h3>
+      <p class="hint" style="margin:0 0 4px">Risk factor tables per crash type (Based On, NF, pF, pN, pC, Max Score) and the highest scoring segments, laid out like the Mountains HRN risk factor tables.</p>
+      <label>Report title</label>
+      <input type="text" id="reportTitle" placeholder="e.g. Mountains – Risk Factors">
+      <div class="actions">
+        <button class="btn" id="repDocx">Download report (Word)</button>
+        <button class="btn secondary" id="repXlsx">Download Excel</button>
+        <span class="status" id="repStatus"></span>
+      </div>
+    </section>
+
+  </aside>
+  <div id="dragbar" title="Drag to resize the panel (double-click to reset)"></div>
+  <div id="map"></div>
+</main>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = (n) => Number(n).toLocaleString();
+
+const S = {
+  step: 1, maxStep: 1,
+  crash: null, road: null, mapStats: null,
+  features: null,            // road GeoJSON features, index = road id
+  focusCols: [], focus: {column: null, values: []}, extra: {column: null, values: []},
+  scan: null, selected: new Map(),
+  score: null, showK: new Set(), crashTypes: [],
+};
+
+/* ---------- API ---------- */
+async function api(path, body) {
+  const res = await fetch(path, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body || {})});
+  const data = await res.json();
+  if (!res.ok || data.error) throw new Error(data.error || res.statusText);
+  return data;
+}
+async function apiGet(path) {
+  const res = await fetch(path);
+  const data = await res.json();
+  if (!res.ok || data.error) throw new Error(data.error || res.statusText);
+  return data;
+}
+async function upload(kind, file) {
+  const res = await fetch("/api/upload?kind=" + kind, {method: "POST", headers: {"X-Filename": encodeURIComponent(file.name)}, body: file});
+  const data = await res.json();
+  if (!res.ok || data.error) throw new Error(data.error || res.statusText);
+  return data;
+}
+function setStatus(el, msg, cls) { el.textContent = msg || ""; el.className = "status" + (cls ? " " + cls : ""); }
+
+/* ---------- Map ---------- */
+const map = L.map("map", {preferCanvas: true}).setView([39.5, -98.35], 4);
+/* Basemaps. Everything below works without an API key. Edit this list to add or remove options.
+   Add a keyed service (Mapbox, Stadia, Thunderforest, ...) the same way by pasting its tile URL with your key. */
+const OSM = {maxZoom: 19, attribution: "&copy; OpenStreetMap contributors"};
+const USGS = {maxZoom: 16, attribution: "Tiles courtesy of the U.S. Geological Survey"};
+const baseMaps = {
+  // Grey styles are OpenStreetMap tiles recoloured in the browser (CSS filter), so no key is needed.
+  "Light grey": L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {...OSM, className: "tiles-light-grey"}),
+  "Dark grey": L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {...OSM, className: "tiles-dark-grey"}),
+  "Streets (OpenStreetMap)": L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", OSM),
+  "Satellite (USGS)": L.tileLayer("https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}", USGS),
+  "Topo (USGS)": L.tileLayer("https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}", USGS),
+  "No basemap (white)": L.layerGroup(),
+};
+let tileErrors = 0;
+const toast = document.createElement("div");
+toast.style.cssText = "position:absolute;z-index:1000;top:10px;left:50px;background:#fff3cd;border:1px solid #e0b84c;padding:6px 10px;border-radius:6px;font-size:12.5px;display:none;max-width:340px";
+document.getElementById("map").appendChild(toast);
+Object.entries(baseMaps).forEach(([name, layer]) => {
+  if (!layer.on) return;
+  layer.on("tileerror", () => {
+    if (++tileErrors === 6) { toast.textContent = `Basemap "${name}" is not loading (blocked, offline, or needs a key). Pick another basemap from the list at top-right.`; toast.style.display = "block"; }
+  });
+  layer.on("add", () => { tileErrors = 0; toast.style.display = "none"; });
+});
+baseMaps["Light grey"].addTo(map);
+L.control.layers(baseMaps, null, {position: "topright", collapsed: false}).addTo(map);
+document.getElementById("map").style.background = "#fff";
+const canvas = L.canvas({padding: 0.3});
+let baseLayer = null, pointLayer = null, scoreLayer = null;
+const legend = L.control({position: "bottomright"});
+legend.onAdd = function () { this._div = L.DomUtil.create("div", "legend-box"); return this._div; };
+legend.addTo(map);
+function setLegend(html) { legend._div.innerHTML = html; legend._div.style.display = html ? "" : "none"; }
+setLegend("");
+
+function drawBaseRoads(featureCollection, step1) {
+  if (baseLayer) map.removeLayer(baseLayer);
+  baseLayer = L.geoJSON(featureCollection, {renderer: canvas, interactive: false,
+    style: {color: step1 ? "#3b6ea5" : "#9aa5b1", weight: step1 ? 2 : 1.5, opacity: step1 ? 0.8 : 0.7}}).addTo(map);
+}
+function drawCrashPoints(data) {
+  if (pointLayer) map.removeLayer(pointLayer);
+  pointLayer = L.layerGroup();
+  for (const [lat, lon, ok] of data.points) {
+    L.circleMarker([lat, lon], {renderer: canvas, radius: 2.5, weight: 0, fillOpacity: 0.7, fillColor: ok ? "#1b9e5a" : "#d93025", interactive: false}).addTo(pointLayer);
+  }
+  pointLayer.addTo(map);
+  S.pointLegend = '<i style="background:#1b9e5a"></i>crash matched to road<br><i style="background:#d93025"></i>crash too far from any road' + (data.truncated ? "<br><small>(map shows a sample of points)</small>" : "");
+  setLegend(S.pointLegend);
+}
+
+/* ---------- Stepper ---------- */
+function renderStepper() {
+  const names = ["1 Data & map", "2 Crash type", "3 Factors", "4 Final map"];
+  $("stepper").innerHTML = names.map((n, i) => {
+    const s = i + 1;
+    const cls = ["step-pill", s === S.step ? "active" : "", s < S.maxStep ? "done" : ""].join(" ");
+    return `<button class="${cls}" data-go="${s}" ${s > S.maxStep ? "disabled" : ""}>${n}</button>`;
+  }).join("");
+  document.querySelectorAll("[data-go]").forEach((b) => b.onclick = () => goStep(+b.dataset.go));
+}
+function goStep(n) {
+  S.step = n; S.maxStep = Math.max(S.maxStep, n);
+  document.querySelectorAll("section[data-step]").forEach((s) => s.classList.toggle("hidden", +s.dataset.step !== n));
+  renderStepper();
+  if (n === 4) enterStep4(); else leaveStep4();
+}
+function unlock(n) { S.maxStep = Math.max(S.maxStep, n); renderStepper(); }
+function invalidateFrom(n) { // reset downstream results when upstream choices change
+  if (n <= 3) { S.scan = null; S.selected = new Map(); S.sets = {}; S.cur = ALL; $("scanOut").classList.add("hidden"); $("to4").disabled = true; if ($("setTabs")) renderSetTabs(); }
+  if (n <= 2) { $("to3").disabled = true; }
+  S.maxStep = Math.min(S.maxStep, n);
+  renderStepper();
+}
+
+/* ---------- Step 1 ---------- */
+function fillSelect(sel, names, preferred, blank) {
+  sel.innerHTML = (blank ? '<option value="">(none)</option>' : "") + names.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+  if (preferred && names.includes(preferred)) sel.value = preferred;
+}
+function updateBuildEnabled() { $("buildBtn").disabled = !(S.crash && S.road); }
+
+$("crashFile").onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  setStatus($("crashStatus"), "Reading " + f.name + " ...");
+  try {
+    const d = await upload("crash", f);
+    S.crash = d; S.mapStats = null;
+    const names = d.columns.map((c) => c.name);
+    fillSelect($("latCol"), names, d.latlon.lat); fillSelect($("lonCol"), names, d.latlon.lon);
+    $("coordBox").classList.remove("hidden");
+    $("crsWarn").textContent = [d.latlon.hint, d.latlon.projected_warning].filter(Boolean).join(" ");
+    if (d.latlon.projected_warning) $("crashCrs").value = "";
+    setStatus($("crashStatus"), `${fmt(d.rows)} crashes, ${d.columns.length} columns${d.sheet ? " \u2014 read from " + d.sheet : ""}`, "ok");
+    invalidateFrom(2); $("to2").classList.add("hidden");
+  } catch (err) { S.crash = null; setStatus($("crashStatus"), err.message, "err"); }
+  updateBuildEnabled();
+};
+
+$("roadFile").onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  setStatus($("roadStatus"), "Reading " + f.name + " (large networks can take a minute) ...");
+  try {
+    const d = await upload("road", f);
+    S.road = d;
+    setStatus($("roadStatus"), `${fmt(d.rows)} road segments, ${d.columns.length} attributes`, "ok");
+    const gj = await apiGet("/api/geometry");
+    S.features = gj.features;
+    drawBaseRoads(gj, true);
+    if (pointLayer) { map.removeLayer(pointLayer); pointLayer = null; }
+    map.fitBounds(d.bounds);
+    invalidateFrom(2); $("to2").classList.add("hidden");
+  } catch (err) { S.road = null; setStatus($("roadStatus"), err.message, "err"); }
+  updateBuildEnabled();
+};
+
+$("buildBtn").onclick = async () => {
+  $("buildBtn").disabled = true; setStatus($("buildStatus"), "Matching crashes to roads ...");
+  try {
+    const st = await api("/api/build-map", {lat_col: $("latCol").value, lon_col: $("lonCol").value,
+      crash_crs: $("crashCrs").value || "4326", tolerance_ft: +$("tolFt").value || 100});
+    S.mapStats = st;
+    const pct = st.with_coordinates ? Math.round(100 * st.matched / st.with_coordinates) : 0;
+    $("mapStats").classList.remove("hidden");
+    $("mapStats").innerHTML = `<div class="stat-grid">
+      <div>Crashes in file</div><div><b>${fmt(st.crashes_total)}</b></div>
+      <div>With coordinates</div><div><b>${fmt(st.with_coordinates)}</b></div>
+      <div>Matched to a road</div><div><b>${fmt(st.matched)}</b> (${pct}%)</div>
+      <div>Not matched (&gt; ${st.tolerance_ft} ft)</div><div><b>${fmt(st.unmatched)}</b></div>
+      <div>Median snap distance</div><div><b>${st.median_distance_ft == null ? "-" : st.median_distance_ft.toFixed(0) + " ft"}</b></div>
+      <div>Road segments / miles</div><div><b>${fmt(st.roads)}</b> / ${st.network_miles.toFixed(0)}</div></div>
+      ${pct < 50 ? '<div class="status warn" style="margin-top:6px">Less than half of the crashes matched. Check the coordinate columns / EPSG code, or raise the snap distance.</div>' : ""}`;
+    drawCrashPoints(await apiGet("/api/crash-points"));
+    map.fitBounds(st.bounds);
+    setStatus($("buildStatus"), "Map built.", "ok");
+    $("to2").classList.remove("hidden");
+    invalidateFrom(2);
+    S.focus = {column: null, values: []}; S.extra = {column: null, values: []};
+    S.maxStep = Math.max(S.maxStep, 2); renderStepper();
+  } catch (err) { setStatus($("buildStatus"), err.message, "err"); }
+  updateBuildEnabled();
+};
+$("to2").onclick = async () => { goStep(2); await loadFocusColumns(); };
+
+/* ---------- Step 2 ---------- */
+async function loadFocusColumns() {
+  if (S.focusCols.length && S.focusColsFor === S.mapStats) return;
+  const d = await apiGet("/api/focus-columns");
+  S.focusCols = d.columns; S.focusColsFor = S.mapStats;
+  const names = d.columns.map((c) => c.name);
+  fillSelect($("focusCol"), names, names[0]);
+  fillSelect($("extraCol"), names, null, true);
+  $("extraCol").value = "";
+  $("extraVals").innerHTML = "";
+  fillSelect($("g2Col"), names, null, true);
+  $("g2Col").value = ""; $("g2Vals").innerHTML = ""; g2Items = []; g2Sel = new Set();
+  // "Crash frequency" breakdown: any column with a dozen values or fewer; guess the severity column
+  const small = d.columns.filter((c) => c.n_unique <= 12).map((c) => c.name);
+  fillSelect($("byCol"), small, null, true);
+  const sev = await findSeverityColumn(small);
+  $("byCol").value = sev ? sev.column : (small.find((n) => /kabco|sever|injur/i.test(n)) || "");
+  // KSI (K + A) as the default second group, so the KSI columns show in the factor table
+  if (sev && sev.ksi.length) {
+    $("g2Col").value = sev.column;
+    if (!$("g2Name").value.trim()) $("g2Name").value = "KSI";
+    await loadG2Values(sev.ksi);
+    $("g2Box").open = true;
+  }
+  await loadFocusValues();
+}
+/* KABCO severity: K = fatal, A = serious injury. Accepts "K", "Fatal (K)", "FAT", "Evident, Incapacitating (A)" ... */
+const isK = (v) => /\(K\)|^K$|^FAT(AL|ALITY)?$|^KILLED$/i.test(String(v).trim());
+const isA = (v) => /\(A\)|^A$/i.test(String(v).trim());
+async function findSeverityColumn(names) {
+  const ordered = [...names].sort((a, b) => (/kabco|sever|injur/i.test(b) ? 1 : 0) - (/kabco|sever|injur/i.test(a) ? 1 : 0));
+  for (const col of ordered.slice(0, 15)) {
+    try {
+      const d = await api("/api/values", {column: col});
+      const vals = d.values.map((x) => x.value);
+      if (vals.some(isK) && vals.some(isA)) return {column: col, ksi: vals.filter((v) => isK(v) || isA(v))};
+    } catch (e) { /* skip */ }
+  }
+  return null;
+}
+function renderChecklist(el, items, selected, onChange) {
+  el.innerHTML = items.map((it, i) => `<label><input type="checkbox" data-i="${i}" ${selected.has(it.value) ? "checked" : ""}>
+    <span>${esc(it.value)}</span><span class="n">${fmt(it.count)}</span></label>`).join("") || '<div class="status">No values.</div>';
+  el.querySelectorAll("input").forEach((cb) => cb.onchange = () => {
+    const v = items[+cb.dataset.i].value;
+    cb.checked ? selected.add(v) : selected.delete(v); onChange();
+  });
+}
+let focusItems = [], focusSel = new Set(), extraItems = [], extraSel = new Set(), g2Items = [], g2Sel = new Set();
+async function loadG2Values(preselect) {
+  const col = $("g2Col").value;
+  g2Sel = new Set(Array.isArray(preselect) ? preselect : []);
+  if (!col) { g2Items = []; $("g2Vals").innerHTML = ""; focusChanged(); return; }
+  const d = await api("/api/values", {column: col});
+  g2Items = d.values;
+  renderChecklist($("g2Vals"), g2Items, g2Sel, focusChanged);
+  focusChanged();
+}
+const g1Name = () => $("g1Name").value.trim() || "Focus";
+const g2Name = () => $("g2Name").value.trim() || "Group 2";
+async function loadFocusValues() {
+  const col = $("focusCol").value; if (!col) return;
+  const d = await api("/api/values", {column: col});
+  focusItems = d.values; focusSel = new Set();
+  // sensible default: preselect nothing, let the user choose
+  renderChecklist($("focusVals"), focusItems, focusSel, focusChanged);
+  focusChanged();
+}
+async function loadExtraValues() {
+  const col = $("extraCol").value;
+  extraSel = new Set();
+  if (!col) { extraItems = []; $("extraVals").innerHTML = ""; focusChanged(); return; }
+  const d = await api("/api/values", {column: col});
+  extraItems = d.values;
+  renderChecklist($("extraVals"), extraItems, extraSel, focusChanged);
+  focusChanged();
+}
+function focusChanged() {
+  S.focus = {column: $("focusCol").value, values: [...focusSel]};
+  S.extra = $("extraCol").value && extraSel.size ? {column: $("extraCol").value, values: [...extraSel]} : null;
+  S.group2 = $("g2Col").value && g2Sel.size ? {column: $("g2Col").value, values: [...g2Sel]} : null;
+  renderFocusSummary();
+  $("to3").disabled = !focusSel.size;
+  invalidateFrom(3);
+  if (focusSel.size) unlock(3);
+}
+function renderFocusSummary() {
+  const n = focusItems.filter((i) => focusSel.has(i.value)).reduce((a, i) => a + i.count, 0);
+  $("focusSummary").innerHTML = focusSel.size
+    ? `<b>${esc(g1Name())}</b> = <b>${[...focusSel].map(esc).join(", ")}</b> &mdash; about <b>${fmt(n)}</b> matched crashes before any optional restriction.`
+      + (S.group2 ? `<br>Second group <b>${esc(g2Name())}</b> = ${esc(S.group2.column)}: ${S.group2.values.map(esc).join(", ")}` : "")
+      + (S.extra ? "<br>Restricted to " + esc(S.extra.column) + ": " + S.extra.values.map(esc).join(", ") : "")
+    : "Tick at least one crash type.";
+}
+$("focusCol").onchange = loadFocusValues;
+$("extraCol").onchange = loadExtraValues;
+$("g2Col").onchange = loadG2Values;
+["g1Name", "g2Name"].forEach((id) => $(id).oninput = () => { renderFocusSummary(); if (S.scan) renderScan(); });
+$("focusAll").onclick = () => { focusItems.forEach((i) => focusSel.add(i.value)); renderChecklist($("focusVals"), focusItems, focusSel, focusChanged); focusChanged(); };
+$("focusNone").onclick = () => { focusSel.clear(); renderChecklist($("focusVals"), focusItems, focusSel, focusChanged); focusChanged(); };
+$("to3").onclick = () => { goStep(3); renderSetTabs(); };
+
+/* ---------- Step 3 ---------- */
+/* Factor sets: S.sets[key] = {scan, selected}; key = ALL (all selected types together) or one crash type.
+   S.scan / S.selected always hold the set being worked on (S.cur). */
+const ALL = "__all__";
+S.sets = {}; S.cur = ALL;
+const setName = (key) => key === ALL ? g1Name() : key;
+const setTypes = (key) => key === ALL ? [...S.focus.values] : [key];
+function saveCur() { S.sets[S.cur] = {scan: S.scan, selected: S.selected}; }
+function switchSet(key) {
+  saveCur();
+  S.cur = key;
+  const st = S.sets[key] || {scan: null, selected: new Map()};
+  S.scan = st.scan; S.selected = st.selected;
+  renderSetTabs();
+  if (S.scan) { $("scanOut").classList.remove("hidden"); renderScan(); }
+  else { $("scanOut").classList.add("hidden"); runScan(); }
+}
+function renderSetTabs() {
+  if ($("xlsxAll")) $("xlsxAll").classList.toggle("hidden", S.focus.values.length < 2);
+  const keys = S.focus.values.length > 1 ? [ALL, ...S.focus.values] : [ALL];
+  $("setTabs").innerHTML = keys.map((k) => {
+    const st = k === S.cur ? {selected: S.selected} : S.sets[k];
+    const n = st && st.selected ? st.selected.size : 0;
+    const label = k === ALL ? (S.focus.values.length > 1 ? "All selected types together" : esc(setName(k))) : esc(k);
+    return `<button class="set-tab ${k === S.cur ? "on" : ""} ${n ? "has" : ""}" data-set="${esc(k)}">${label}<span class="n">${n ? n + " factor" + (n > 1 ? "s" : "") : ""}</span></button>`;
+  }).join("");
+  $("setTabs").querySelectorAll("[data-set]").forEach((b) => b.onclick = () => { if (b.dataset.set !== S.cur) switchSet(b.dataset.set); });
+}
+const totalSelected = () => { saveCur(); return Object.values(S.sets).reduce((a, st) => a + (st.selected ? st.selected.size : 0), 0); };
+const condKey = (c) => `${c.column}|${c.op}|${c.value}`;
+const XN_TIP = "How many times more common the group is under this condition than normal (1.00 = no difference, 2.00 = twice as common, 0.50 = half). \u2605 = strongest clear condition in the category (highest \u00d7 normal with Prob. \u2265 95%).";
+const pct = (x) => x == null ? "" : `${Math.round(100 * x)}%`;
+const probClass = (p) => p == null ? "" : p >= 0.95 ? "p-hi" : p >= 0.85 ? "p-mid" : "";
+const factorText = (c) => ["eq", "rng", "age"].includes(c.op) ? c.value : `${{ge: "≥", le: "≤"}[c.op]} ${c.value}`;
+
+async function runScan() {
+  $("scanBtn").disabled = true; setStatus($("scanStatus"), "Scanning columns ...");
+  try {
+    const forKey = S.cur;
+    const d = await api("/api/scan", {focus: {column: S.focus.column, values: setTypes(forKey)}, extra: S.extra, group2: S.group2, breakdown: $("byCol").value || null,
+      min_focus: +$("minFocus").value || 5, max_levels: +$("maxLevels").value || 40});
+    // keep ticks that still exist after a re-scan (e.g. after changing the crash frequency column)
+    const keep = new Map();
+    d.columns.forEach((col) => col.conditions.forEach((c) => { if (S.selected.has(condKey(c))) keep.set(condKey(c), c); }));
+    if (forKey !== S.cur) return; // user switched type while scanning
+    S.scan = d; S.selected = keep;
+    renderScan();
+    $("scanOut").classList.remove("hidden");
+    setStatus($("scanStatus"), "");
+  } catch (err) { setStatus($("scanStatus"), err.message, "err"); }
+  $("scanBtn").disabled = false;
+}
+$("scanBtn").onclick = runScan;
+
+/* Excel download of the full scan (every value of every column), before picking factors */
+function scanRequest(key) {
+  return {focus: {column: S.focus.column, values: setTypes(key)}, extra: S.extra, group2: S.group2, breakdown: $("byCol").value || null,
+    min_focus: +$("minFocus").value || 5, max_levels: +$("maxLevels").value || 40};
+}
+async function downloadXlsx(keys, btn) {
+  btn.disabled = true; setStatus($("xlsxStatus"), keys.length > 1 ? `Building workbook (${keys.length} sheets) ...` : "Building workbook ...");
+  try {
+    const sheetName = (k) => k === ALL && S.focus.values.length > 1 ? "All selected types" : setName(k);
+    const body = {sets: keys.map((k) => ({name: sheetName(k), scan: scanRequest(k)})), group2_name: g2Name(), sort: $("catSort").value,
+      meta: {focus_column: S.focus.column, min_focus: +$("minFocus").value || 5,
+        group2: S.group2 ? `${g2Name()} = ${S.group2.column}: ${S.group2.values.join(", ")}` : "",
+        extra: S.extra ? `${S.extra.column}: ${S.extra.values.join(", ")}` : ""}};
+    const res = await fetch("/api/scan-export", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+    if (!res.ok) { let msg = res.statusText; try { msg = (await res.json()).error || msg; } catch (e) { /* not JSON */ } throw new Error(msg); }
+    const blob = await res.blob();
+    const stem = keys.length > 1 ? "all_crash_types" : sheetName(keys[0]).replace(/[^\w-]+/g, "_");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = `hrn_factor_scan_${stem}.xlsx`; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    setStatus($("xlsxStatus"), "Downloaded.", "ok");
+  } catch (err) { setStatus($("xlsxStatus"), err.message, "err"); }
+  btn.disabled = false;
+}
+$("xlsxOne").onclick = () => downloadXlsx([S.cur], $("xlsxOne"));
+$("xlsxAll").onclick = () => downloadXlsx(S.focus.values.length > 1 ? [ALL, ...S.focus.values] : [ALL], $("xlsxAll"));
+$("byCol").onchange = () => { if (S.scan) runScan(); };
+$("showAll").onchange = () => { if (S.scan) renderScan(); };
+$("catSort").onchange = () => { if (S.scan) renderScan(); try { localStorage.setItem("hrn.catSort", $("catSort").value); } catch (e) { /* ignore */ } };
+try { const v = localStorage.getItem("hrn.catSort"); if (v) $("catSort").value = v; } catch (e) { /* ignore */ }
+
+function renderScan() {
+  const d = S.scan, showAll = $("showAll").checked;
+  const B = d.breakdown ? d.breakdown.labels : [];
+  const G2 = d.has_group2;
+  const n1 = setName(S.cur), n2 = g2Name();
+  const nOver = d.columns.filter((c) => c.has_over).length;
+  $("scanSummary").innerHTML = `<b>${esc(n1)}</b>: <b>${fmt(d.n_focus)}</b> of <b>${fmt(d.n_universe)}</b> crashes (<b>${(100 * d.base_rate).toFixed(1)}%</b> overall &mdash; the &ldquo;normal&rdquo; rate).`
+    + (G2 ? ` <b>${esc(n2)}</b>: <b>${fmt(d.all.n_g2)}</b> crashes (${(100 * d.all.n_g2 / d.n_universe).toFixed(1)}%).` : "")
+    + ` ${nOver} of ${d.columns.length} columns have at least one over-represented condition.`;
+
+  const gs = (cls) => `class="gs ${cls || ""}"`;
+  let html = `<thead><tr>
+      <th rowspan="2" title="Use as a factor">&#10003;</th><th rowspan="2" class="l">Category</th><th rowspan="2" class="l">Factor</th>
+      ${B.length ? `<th colspan="${B.length}" title="${esc(d.breakdown.column)}">Crash Frequency</th>` : ""}
+      <th colspan="2">Total</th><th colspan="4">${esc(n1)}</th>${G2 ? `<th colspan="4">${esc(n2)}</th>` : ""}
+    </tr><tr>
+      ${B.map((b, i) => { const sh = (d.breakdown.short || B)[i]; return `<th title="${esc(b)}">${esc(sh.length > 8 ? sh.slice(0, 7) + "…" : sh)}</th>`; }).join("")}
+      <th>#</th><th>%</th><th>#</th><th>%</th><th title="${XN_TIP}">&times; normal</th><th>Prob.</th>${G2 ? `<th>#</th><th>%</th><th title="${XN_TIP}">&times; normal</th><th>Prob.</th>` : ""}
+    </tr></thead><tbody>`;
+  const A = d.all;
+  html += `<tr class="allrow"><td></td><td class="f">All</td><td></td>
+    ${(A.by || []).map((v, i) => `<td ${i === 0 ? gs() : ""}>${fmt(v)}</td>`).join("")}
+    <td ${gs()}>${fmt(A.n_all)}</td><td></td><td ${gs()}>${fmt(A.n_focus)}</td><td></td><td>1.00</td><td></td>
+    ${G2 ? `<td ${gs()}>${fmt(A.n_g2)}</td><td></td><td>1.00</td><td></td>` : ""}</tr>`;
+
+  // strongest condition per category: highest x normal among clear (Prob >= 95%, above expected) rows
+  const minN = d.min_focus || 1;
+  const bestOf = (conds, get) => {
+    let best = null;
+    conds.forEach((c) => {
+      const g = get(c);
+      if (!g || g.prob == null || g.prob < 0.95 || g.lift == null || g.lift <= 1 || g.n < minN) return;
+      if (!best || g.lift > get(best).lift) best = c;
+    });
+    return best;
+  };
+  const xn = (v, isBest) => v == null ? "" : `${isBest ? "&#9733; " : ""}${v.toFixed(2)}`;
+  const xnClass = (v, isBest) => isBest ? "xn-best" : (v != null && v >= 1.3 ? "xn-hi" : "");
+
+  let shown = 0;
+  const order = d.columns.map((col, ci) => ({col, ci}));
+  if ($("catSort").value === "name") order.sort((a, b) => a.col.label.localeCompare(b.col.label, undefined, {numeric: true, sensitivity: "base"}));
+  order.forEach(({col, ci}) => {
+    const b1 = bestOf(col.conditions, (c) => c.over ? {prob: c.prob, lift: c.lift, n: c.n_focus} : null);
+    const b2 = G2 ? bestOf(col.conditions, (c) => c.g2) : null;
+    let rows = col.conditions.map((c, k) => ({c, k}));
+    if (showAll) rows.sort((a, b) => a.c.ord - b.c.ord);
+    else rows = rows.filter((r) => r.c.over);
+    if (!rows.length) return;
+    shown++;
+    rows.forEach(({c, k}, i) => {
+      const key = condKey(c), sel = S.selected.has(key), exp = c.n_focus - c.excess;
+      const tip = `${c.label}: ${n1} crashes are ${c.lift == null ? "-" : c.lift.toFixed(2)}x as common as normal here. `
+        + `${fmt(c.n_focus)} observed vs about ${fmt(Math.round(exp))} expected (${Math.round(c.excess) >= 0 ? fmt(Math.round(c.excess)) + " extra" : fmt(Math.round(-c.excess)) + " fewer"}). `
+        + `Prob. ${pct(c.prob)} that this is more than chance. ${fmt(c.n_all)} crashes of all types meet this condition.`
+        + (c.over ? "" : " (Not over-represented, or fewer than the minimum crashes.)");
+      const cls = [sel ? "sel" : "", c.over ? "" : "dim", i === rows.length - 1 ? "lastrow" : ""].join(" ");
+      html += `<tr data-key="${esc(key)}" title="${esc(tip)}" class="${cls}">
+        <td class="cb"><input type="checkbox" data-ci="${ci}" data-k="${k}" ${sel ? "checked" : ""}></td>`
+        + (i === 0 ? `<td class="cat" rowspan="${rows.length}">${esc(col.label)}<span class="tag ${col.source}">${col.source}</span></td>` : "")
+        + `<td class="f">${esc(factorText(c))}</td>`
+        + (c.by || []).map((v, j) => `<td ${j === 0 ? gs() : ""}>${fmt(v)}</td>`).join("")
+        + `<td ${gs()}>${fmt(c.n_all)}</td><td>${pct(c.pct_all)}</td>`
+        + `<td ${gs()}>${fmt(c.n_focus)}</td><td>${pct(c.share)}</td><td class="${xnClass(c.lift, c === b1)}">${xn(c.lift, c === b1)}</td><td class="${probClass(c.prob)}">${pct(c.prob)}</td>`
+        + (G2 && c.g2 ? `<td ${gs()}>${fmt(c.g2.n)}</td><td>${pct(c.g2.share)}</td><td class="${xnClass(c.g2.lift, c === b2)}">${xn(c.g2.lift, c === b2)}</td><td class="${probClass(c.g2.prob)}">${pct(c.g2.prob)}</td>` : "")
+        + `</tr>`;
+    });
+  });
+  if (!shown) html += `<tr><td colspan="20" class="f" style="padding:10px">No over-represented conditions. Tick &ldquo;show every value&rdquo; or lower the minimum crashes.</td></tr>`;
+  $("factorTable").innerHTML = html + "</tbody>";
+  $("factorTable").querySelectorAll("input[type=checkbox]").forEach((cb) => cb.onchange = () => {
+    const c = S.scan.columns[+cb.dataset.ci].conditions[+cb.dataset.k];
+    cb.checked ? S.selected.set(condKey(c), c) : S.selected.delete(condKey(c));
+    cb.closest("tr").classList.toggle("sel", cb.checked); updateSelCount();
+  });
+  $("skipSummary").textContent = `Skipped columns (${d.skipped.length})`;
+  $("skipList").innerHTML = d.skipped.map((s) => `${esc(s.column)} &mdash; ${esc(s.reason)}`).join("<br>");
+  updateSelCount();
+}
+function updateSelCount() {
+  const n = S.selected.size, total = totalSelected();
+  const others = total - n;
+  $("selCount").textContent = (n ? `${n} factor${n > 1 ? "s" : ""} selected for ${setName(S.cur)}.` : `Select the factors for ${setName(S.cur)}.`)
+    + (others ? ` ${others} more selected for other crash types.` : "");
+  $("to4").disabled = total === 0;
+  if (total) unlock(4);
+  renderSetTabs();
+}
+$("ruleBtn").onclick = () => {
+  const p = (+$("ruleProb").value || 0) / 100, s = (+$("ruleShare").value || 0) / 100;
+  const meets = (prob, share) => prob != null && prob >= p && share >= s;
+  S.selected = new Map();
+  S.scan.columns.forEach((col) => col.conditions.forEach((c) => {
+    if (meets(c.prob, c.share) || (c.g2 && meets(c.g2.prob, c.g2.share))) S.selected.set(condKey(c), c);
+  }));
+  renderScan();
+};
+$("topNBtn").onclick = () => {
+  const n = Math.max(1, +$("topN").value || 1);
+  S.selected = new Map();
+  S.scan.columns.filter((col) => col.has_over).slice(0, n).forEach((col) => S.selected.set(condKey(col.conditions[0]), col.conditions[0]));
+  renderScan();
+};
+$("clearSel").onclick = () => { S.selected = new Map(); renderScan(); };
+$("to4").onclick = () => goStep(4);
+
+/* ---------- Step 4 ---------- */
+function ramp(k, K) {
+  const stops = ["#ffe08a", "#fdae61", "#f46d43", "#d73027", "#7f0000"];
+  const t = K <= 1 ? 1 : (k - 1) / (K - 1);
+  const x = Math.max(0, Math.min(1, t)) * (stops.length - 1), i = Math.min(stops.length - 2, Math.floor(x)), f = x - i;
+  const a = stops[i].match(/\w\w/g).map((h) => parseInt(h, 16)), b = stops[i + 1].match(/\w\w/g).map((h) => parseInt(h, 16));
+  return "#" + a.map((v, j) => Math.round(v + (b[j] - v) * f).toString(16).padStart(2, "0")).join("");
+}
+const colorFor = (k, K) => k === 0 ? "#8a97a6" : ramp(k, K);
+
+let scoreTimer = null, scoreGroup = null, scoreItems = [];
+const filterCtl = L.control({position: "bottomleft"});
+filterCtl.onAdd = function () {
+  const d = L.DomUtil.create("div", "filter-box");
+  L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d);
+  this._div = d; return d;
+};
+function leaveStep4() {
+  if (scoreGroup) { map.removeLayer(scoreGroup); scoreGroup = null; }
+  scoreItems = [];
+  filterCtl.remove();
+  if (baseLayer && S.features) drawBaseRoads({type: "FeatureCollection", features: S.features}, true);
+  if (pointLayer && !map.hasLayer(pointLayer)) pointLayer.addTo(map);
+  setLegend(pointLayer ? (S.pointLegend || "") : "");
+}
+function enterStep4() {
+  if (pointLayer) map.removeLayer(pointLayer);
+  if (baseLayer && S.features) drawBaseRoads({type: "FeatureCollection", features: S.features}, false);
+  setLegend("");
+  filterCtl.addTo(map);
+  saveCur();
+  const hasAll = !!(S.sets[ALL] && S.sets[ALL].selected.size);
+  const hasEach = S.focus.values.some((t) => S.sets[t] && S.sets[t].selected.size);
+  $("modeBox").classList.toggle("hidden", !(hasAll && hasEach));
+  if (!hasEach) $("setMode").value = "all";
+  else if (!hasAll) $("setMode").value = "each";
+  else if (S.modeTouched !== true) $("setMode").value = "each";
+  if (S.lastFocusKey !== JSON.stringify(S.focus)) { S.crashTypes = [...S.focus.values]; S.lastFocusKey = JSON.stringify(S.focus); }
+  renderStep4Sets();
+  S.layersInit = false;
+  filterCtl._div.innerHTML = '<div class="t">Filter segments</div><div class="status">Scoring ...</div>';
+  requestScore();
+}
+const step4Each = () => $("setMode").value === "each";
+function renderStep4Sets() {
+  const each = step4Each();
+  // in "each" mode only types that have their own factors can be mapped
+  const types = each ? S.focus.values.filter((t) => S.sets[t] && S.sets[t].selected.size) : S.focus.values;
+  const checked = S.crashTypes.filter((t) => types.includes(t));
+  S.crashTypes = checked.length ? checked : [...types];
+  const list = (sel) => [...sel.values()].map((c) => "&bull; " + esc(c.label)).join("<br>");
+  if (each) {
+    const skipped = S.focus.values.filter((t) => !types.includes(t));
+    $("factorList").innerHTML = types.map((t) => `<b>${esc(t)}</b> (${S.sets[t].selected.size}):<br>${list(S.sets[t].selected)}`).join("<br>")
+      + (skipped.length ? `<div class="status warn" style="margin-top:6px">No factors picked for: ${skipped.map(esc).join(", ")} (go back to Step 3 to add them).</div>` : "");
+  } else {
+    const sel = (S.sets[ALL] || {selected: new Map()}).selected;
+    $("factorList").innerHTML = `<b>Factors applied to all selected types (${sel.size}):</b><br>` + list(sel);
+  }
+  $("typeChecks").innerHTML = types.map((t) => `<label><input type="checkbox" data-t="${esc(t)}" ${S.crashTypes.includes(t) ? "checked" : ""}> <span>${esc(t)}</span></label>`).join("");
+  $("typeChecks").querySelectorAll("input").forEach((cb) => cb.onchange = () => {
+    S.crashTypes = [...$("typeChecks").querySelectorAll("input:checked")].map((x) => x.dataset.t);
+    requestScore();
+  });
+}
+$("setMode").onchange = () => { S.modeTouched = true; renderStep4Sets(); requestScore(); };
+const factorPayload = (sel) => [...sel.values()].map((c) => ({column: c.column, op: c.op, value: c.value, kind: c.kind}));
+function scoreSets() {
+  if (step4Each()) return S.crashTypes.filter((t) => S.sets[t] && S.sets[t].selected.size)
+    .map((t) => ({name: t, types: [t], factors: factorPayload(S.sets[t].selected)}));
+  const sel = (S.sets[ALL] || {selected: new Map()}).selected;
+  return [{name: g1Name(), types: [...S.crashTypes], factors: factorPayload(sel)}];
+}
+function requestScore() { clearTimeout(scoreTimer); scoreTimer = setTimeout(runScore, 250); }
+async function runScore() {
+  if (!S.crashTypes.length) { setStatus($("scoreStatus"), "Tick at least one crash type.", "warn"); if (scoreGroup) { map.removeLayer(scoreGroup); scoreGroup = null; } return; }
+  setStatus($("scoreStatus"), "Scoring roads ...");
+  try {
+    const d = await api("/api/score", {focus: S.focus, extra: S.extra, sets: scoreSets(),
+      min_crashes: +$("minCrashes").value || 1, include_empty: $("includeEmpty").checked});
+    S.score = d;
+    const K = d.factors.length;
+    if (S.lastK !== K) { S.layersInit = false; S.lastK = K; }
+    if (!S.layersInit) { S.showK = new Set(); for (let k = 1; k <= K; k++) S.showK.add(k); S.layersInit = true; }
+    S.showK = new Set([...S.showK].filter((k) => k <= K));
+    buildScoreLayers(); renderFilterBox(); applyFilter();
+    setStatus($("scoreStatus"), `${fmt(d.n_focus_crashes)} focus crashes on ${fmt(d.n_roads_with_crashes)} road segments.`, "ok");
+  } catch (err) { setStatus($("scoreStatus"), err.message, "err"); }
+}
+$("minCrashes").onchange = requestScore;
+
+/* Step 4 exports: Word report and Excel */
+async function downloadReport(kind, btn) {
+  if (!S.crashTypes.length) { setStatus($("repStatus"), "Tick at least one crash type.", "warn"); return; }
+  btn.disabled = true; setStatus($("repStatus"), "Building " + (kind === "docx" ? "report" : "workbook") + " ...");
+  try {
+    const title = $("reportTitle").value.trim() || "HRN Risk Factors";
+    const body = {focus: S.focus, extra: S.extra, sets: scoreSets(), min_crashes: +$("minCrashes").value || 1,
+      include_empty: $("includeEmpty").checked, title, top_n: 20,
+      meta: {focus_column: S.focus.column, extra: S.extra ? `${S.extra.column}: ${S.extra.values.join(", ")}` : ""}};
+    const res = await fetch("/api/report-" + kind, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+    if (!res.ok) { let msg = res.statusText; try { msg = (await res.json()).error || msg; } catch (e) { /* not JSON */ } throw new Error(msg); }
+    const blob = await res.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = title.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "_") + (kind === "docx" ? ".docx" : ".xlsx");
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    setStatus($("repStatus"), "Downloaded.", "ok");
+  } catch (err) { setStatus($("repStatus"), err.message, "err"); }
+  btn.disabled = false;
+}
+$("repDocx").onclick = () => downloadReport("docx", $("repDocx"));
+$("repXlsx").onclick = () => downloadReport("xlsx", $("repXlsx"));
+$("includeEmpty").onchange = requestScore;
+
+function buildScoreLayers() {
+  if (scoreGroup) map.removeLayer(scoreGroup);
+  scoreGroup = L.layerGroup().addTo(map);
+  const K = S.score.factors.length;
+  scoreItems = S.score.roads.slice().sort((a, b) => a.n - b.n || a.c - b.c).map((r) => {
+    const f = S.features[r.id];
+    const layer = L.geoJSON(f, {renderer: canvas, style: {color: colorFor(r.n, K), weight: 2.5 + Math.min(4, Math.log2(1 + r.c)), opacity: 0.95}});
+    layer.on("click", (e) => showRoadPopup(e, f.properties, r));
+    return {row: r, layer};
+  });
+}
+function renderFilterBox() {
+  const d = S.score, K = d.factors.length;
+  const minK = S.showK.size ? Math.min(...S.showK) : K;
+  let chips = "";
+  for (let k = 0; k <= K; k++) {
+    chips += `<button class="chip" data-k="${k}" style="border-color:${colorFor(k, K)}">${k}<small>${fmt(d.distribution[k] || 0)}</small></button>`;
+  }
+  filterCtl._div.innerHTML = `<div class="t">Filter segments by factors met</div>
+    <div>At least <b id="fbMin">${minK}</b> of ${K} factors</div>
+    <input type="range" id="fbSlider" min="0" max="${K}" step="1" value="${minK}">
+    <div class="chips">${chips}</div>
+    <div id="fbCount" class="status" style="margin-top:6px"></div>`;
+  $("fbSlider").oninput = (e) => {
+    const v = +e.target.value; $("fbMin").textContent = v;
+    S.showK = new Set(); for (let k = v; k <= K; k++) S.showK.add(k);
+    applyFilter();
+  };
+  filterCtl._div.querySelectorAll(".chip").forEach((c) => c.onclick = () => {
+    const k = +c.dataset.k; S.showK.has(k) ? S.showK.delete(k) : S.showK.add(k);
+    applyFilter();
+  });
+}
+let filterFrame = null;
+function applyFilter() {
+  if (filterFrame) cancelAnimationFrame(filterFrame);
+  filterFrame = requestAnimationFrame(() => {
+    filterFrame = null;
+    if (!scoreGroup || !S.score) return;
+    const K = S.score.factors.length;
+    scoreGroup.clearLayers();
+    const vis = scoreItems.filter((i) => S.showK.has(i.row.n));
+    vis.forEach((i) => scoreGroup.addLayer(i.layer));
+    filterCtl._div.querySelectorAll(".chip").forEach((c) => {
+      const k = +c.dataset.k, on = S.showK.has(k);
+      c.classList.toggle("on", on); c.style.background = on ? colorFor(k, K) : "#fff";
+    });
+    const slider = $("fbSlider");
+    if (slider && S.showK.size) { const m = Math.min(...S.showK); slider.value = m; $("fbMin").textContent = m; }
+    const ncr = vis.reduce((a, i) => a + i.row.c, 0);
+    $("fbCount").textContent = `${fmt(vis.length)} segments shown, ${fmt(ncr)} focus crashes`;
+    setLegend(`Colour = # of ${K} factors met`);
+    renderTop(vis.map((i) => i.row));
+  });
+}
+function visibleRows() { return scoreItems.filter((i) => S.showK.has(i.row.n)).map((i) => i.row); }
+
+async function showRoadPopup(e, props, r) {
+  const d = S.score;
+  let html = `<b>${esc(props.name || "Segment " + props.id)}</b> <small>(id ${props.id})</small><br>`;
+  html += `Factors met: <b>${r.n}</b> of ${d.factors.length}<br>`;
+  html += r.f.length ? r.f.map((i) => "&bull; " + esc(d.factors[i])).join("<br>") : "<i>none</i>";
+  html += `<br>Focus crashes: <b>${r.c}</b><br>` + d.types.map((t, i) => r.t[i] ? `&nbsp;&nbsp;${esc(t)}: ${r.t[i]}` : "").filter(Boolean).join("<br>");
+  const popup = L.popup({maxWidth: 360}).setLatLng(e.latlng).setContent(html).openOn(map);
+  try {
+    const det = await apiGet("/api/road?id=" + props.id);
+    html += `<details><summary>Road attributes (${det.all_crashes} crashes of all types)</summary><small>` + det.attributes.map(([k, v]) => `${esc(k)}: ${esc(v)}`).join("<br>") + "</small></details>";
+    popup.setContent(html);
+  } catch (err) { /* attribute lookup is optional */ }
+}
+function renderTop(rows) {
+  const top = [...rows].sort((a, b) => b.n - a.n || b.c - a.c).slice(0, 15);
+  $("topRoads").innerHTML = top.map((r) => `<li data-id="${r.id}"><b>${esc(S.features[r.id].properties.name || "Segment " + r.id)}</b> &mdash; ${r.n} factors, ${r.c} crashes</li>`).join("") || "<li>No segments in the visible layers.</li>";
+  $("topRoads").querySelectorAll("li[data-id]").forEach((li) => li.onclick = () => {
+    const b = L.geoJSON(S.features[+li.dataset.id]).getBounds(); map.fitBounds(b.pad(1.5), {maxZoom: 17});
+  });
+}
+
+function download(name, text, type) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], {type})); a.download = name; a.click(); URL.revokeObjectURL(a.href);
+}
+$("expCsv").onclick = () => {
+  if (!S.score) return;
+  const d = S.score, q = (v) => '"' + String(v ?? "").replace(/"/g, '""') + '"';
+  const head = ["road_id", "name", "factors_met", "focus_crashes", ...d.types.map((t) => "crashes_" + t), "factors"];
+  const lines = [head.map(q).join(",")];
+  visibleRows().sort((a, b) => b.n - a.n || b.c - a.c).forEach((r) => lines.push([r.id, S.features[r.id].properties.name, r.n, r.c, ...r.t, r.f.map((i) => d.factors[i]).join("; ")].map(q).join(",")));
+  download("hrn_segments.csv", lines.join("\n"), "text/csv");
+};
+$("expGeo").onclick = () => {
+  if (!S.score) return;
+  const d = S.score;
+  const feats = visibleRows().map((r) => ({type: "Feature", geometry: S.features[r.id].geometry,
+    properties: {road_id: r.id, name: S.features[r.id].properties.name, factors_met: r.n, focus_crashes: r.c, factors: r.f.map((i) => d.factors[i]).join("; ")}}));
+  download("hrn_segments.geojson", JSON.stringify({type: "FeatureCollection", features: feats}), "application/geo+json");
+};
+
+/* ---------- Resizable left panel ---------- */
+(function () {
+  const panel = $("panel"), bar = $("dragbar"), DEFAULT = 560, KEY = "hrn.panelWidth";
+  const clampW = (w) => Math.max(320, Math.min(window.innerWidth - 160, w));
+  const setW = (w) => { panel.style.width = clampW(w) + "px"; map.invalidateSize(); };
+  try { const w = +localStorage.getItem(KEY); if (w) setW(w); } catch (e) { /* storage unavailable */ }
+  let startX = 0, startW = 0, frame = null;
+  bar.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    startX = e.clientX; startW = panel.getBoundingClientRect().width;
+    bar.setPointerCapture(e.pointerId); bar.classList.add("dragging"); document.body.classList.add("resizing");
+  });
+  bar.addEventListener("pointermove", (e) => {
+    if (!bar.hasPointerCapture(e.pointerId)) return;
+    const w = startW + e.clientX - startX;
+    panel.style.width = clampW(w) + "px";
+    if (!frame) frame = requestAnimationFrame(() => { frame = null; map.invalidateSize(); });
+  });
+  const stop = (e) => {
+    if (!bar.hasPointerCapture(e.pointerId)) return;
+    bar.releasePointerCapture(e.pointerId); bar.classList.remove("dragging"); document.body.classList.remove("resizing");
+    map.invalidateSize();
+    try { localStorage.setItem(KEY, Math.round(panel.getBoundingClientRect().width)); } catch (err) { /* ignore */ }
+  };
+  bar.addEventListener("pointerup", stop);
+  bar.addEventListener("pointercancel", stop);
+  bar.addEventListener("dblclick", () => { setW(DEFAULT); try { localStorage.removeItem(KEY); } catch (e) { /* ignore */ } });
+  window.addEventListener("resize", () => { const w = panel.getBoundingClientRect().width; if (w > window.innerWidth - 160) setW(w); });
+})();
+
+renderStepper();
+goStep(1);
+</script>
+</body>
+</html>
