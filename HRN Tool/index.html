@@ -71,6 +71,7 @@
   .explain code { background:#fff; border:1px solid #d8e3ea; border-radius:4px; padding:0 4px; }
   .tag { font-size:10.5px; padding:1px 6px; border-radius:8px; margin-left:6px; font-weight:600; }
   .tag.road { background:#e3efe6; color:#1c5a34; } .tag.crash { background:#fde8d4; color:#8a4a12; }
+  .tag.ord { background:#e6edf8; color:#1f4f8f; } .tag.unord { background:#efe9f7; color:#5b3a8c; }
   .scroll-table { max-height:58vh; overflow:auto; border:1px solid var(--line); border-radius:6px; }
   .layer-row { display:flex; align-items:center; gap:8px; padding:3px 0; }
   .swatch { width:22px; height:6px; border-radius:3px; display:inline-block; }
@@ -84,6 +85,89 @@
   .set-tab.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
   .set-tab .n { margin-left:5px; font-size:11px; opacity:.8; }
   .set-tab.has { border-color:#4fb286; }
+  .cm-overlay { position:fixed; inset:0; z-index:5000; background:var(--bg); display:flex; flex-direction:column; }
+  .cm-head { display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; padding:10px 16px; background:#12263a; color:#fff; }
+  .cm-head h2 { margin:0; font-size:16px; color:#fff; }
+  .cm-head label { display:flex; align-items:center; gap:6px; margin:0; font-weight:400; font-size:13px; color:#dfe7ee; }
+  .cm-head input { width:70px; padding:4px 6px; border-radius:5px; border:0; }
+  .cm-head .sp { flex:1; }
+  .cm-head .btn.secondary { background:#fff; }
+  .cm-body { flex:1; display:flex; min-height:0; }
+  .cm-grid { flex:1; overflow:auto; padding:12px 16px; background:#fcfcfb; }
+  .cm-side { width:400px; flex:none; overflow:auto; padding:12px 16px; background:#fff; border-left:1px solid var(--line); font-size:12.5px; }
+  .cm-side h3 { margin:14px 0 4px; text-transform:none; letter-spacing:0; color:var(--ink); font-size:13.5px; }
+  table.cm { border-collapse:separate; border-spacing:2px; font-size:11px; }
+  table.cm th { font-weight:600; color:var(--muted); background:#fcfcfb; position:sticky; z-index:1; }
+  table.cm thead th { top:0; height:22px; min-width:34px; }
+  table.cm th.rl { left:0; text-align:left; white-space:nowrap; max-width:330px; overflow:hidden; text-overflow:ellipsis; padding-right:8px; color:var(--ink); font-weight:500; z-index:2; }
+  table.cm thead th.rl { z-index:3; }
+  table.cm th.rl.out { font-weight:700; }
+  table.cm td { width:34px; min-width:34px; height:24px; text-align:center; border-radius:3px; font-variant-numeric:tabular-nums; cursor:default; }
+  table.cm td.red { outline:2px dashed #1f2328; outline-offset:-3px; font-weight:700; }
+  table.cm tr.out td { box-shadow:inset 0 0 0 2px #d4a21a; }
+  table.cm td.diag { background:#e6e4df; color:var(--muted); }
+  .cm-tag { font-size:9.5px; padding:0 5px; border-radius:7px; margin-left:4px; font-weight:600; }
+  .cm-tag.road { background:#e3efe6; color:#1c5a34; } .cm-tag.crash { background:#fde8d4; color:#8a4a12; } .cm-tag.outcome { background:#fff3cc; color:#7a5300; }
+  table.cm td[data-i] { cursor:pointer; }
+  table.cm td[data-i]:hover { outline:2px solid #1f2328; outline-offset:-2px; }
+  table.cm th.rl[data-i] { cursor:pointer; }
+  table.cm th.rl[data-i]:hover { color:var(--accent); text-decoration:underline; }
+  .cm-card { position:fixed; z-index:6000; top:70px; left:50%; transform:translateX(-50%); width:min(980px, 94vw); max-height:80vh; overflow:auto;
+    background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:0 12px 40px rgba(0,0,0,.25); padding:14px 18px; }
+  .cm-card .x { position:absolute; right:12px; top:8px; background:none; border:0; font-size:20px; cursor:pointer; color:var(--muted); }
+  .cm-card .cols { display:flex; gap:18px; align-items:flex-start; }
+  .cm-card .col { flex:1; min-width:0; }
+  .cm-card h4 { margin:0 0 4px; font-size:14px; }
+  .cm-card .kind { display:inline-block; font-size:11px; font-weight:700; padding:1px 8px; border-radius:9px; margin-left:6px; }
+  .cm-card .kind.numbers { background:#e3f1fa; color:#0b6e99; } .cm-card .kind.text { background:#fde8d4; color:#8a4a12; }
+  .cm-card table { border-collapse:collapse; width:100%; font-size:12px; margin-top:6px; }
+  .cm-card th { text-align:left; color:var(--muted); font-weight:600; border-bottom:1px solid var(--line); padding:3px 6px; position:sticky; top:0; background:#fff; }
+  .cm-card td { padding:2px 6px; border-bottom:1px solid #f0f2f4; font-variant-numeric:tabular-nums; }
+  .cm-card td.n, .cm-card th.n { text-align:right; }
+  .cm-card td.blank { color:var(--muted); font-style:italic; }
+  .cm-card .vals { max-height:46vh; overflow:auto; }
+  table.scr { border-collapse:collapse; width:100%; font-size:12px; margin-top:6px; }
+  table.scr th { text-align:right; color:var(--muted); font-weight:600; border-bottom:1px solid var(--line); padding:3px 6px; white-space:nowrap; }
+  table.scr th:first-child, table.scr td:first-child { text-align:left; }
+  table.scr td { padding:3px 6px; border-bottom:1px solid #f0f2f4; text-align:right; font-variant-numeric:tabular-nums; }
+  table.scr td.ov { text-align:left; color:var(--muted); font-size:11.5px; max-width:260px; }
+  table.scr .st { font-weight:700; }
+  table.cvx { border-collapse:collapse; font-size:12px; margin-top:6px; }
+  table.cvx th { color:var(--muted); font-weight:600; padding:3px 7px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap; }
+  table.cvx th.rl { text-align:left; }
+  table.cvx td { padding:3px 7px; text-align:right; font-variant-numeric:tabular-nums; border-bottom:1px solid #f0f2f4; }
+  table.cvx td small { display:block; color:var(--muted); font-size:10.5px; }
+  .cm-pick { max-height:300px; overflow:auto; border:1px solid var(--line); border-radius:6px; padding:4px 6px; margin:4px 0 6px; }
+  .cm-pick .r { display:flex; align-items:center; gap:6px; padding:2px 0; }
+  .cm-pick .r .nm { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cm-pick .r label { margin:0; font-weight:400; display:flex; align-items:center; gap:3px; font-size:11.5px; color:var(--muted); }
+  .cm-bar { display:flex; align-items:center; gap:6px; margin:3px 0; }
+  .cm-bar .lb { width:190px; flex:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cm-bar .track { flex:1; position:relative; height:12px; background:#f3f4f6; border-radius:3px; }
+  .cm-bar .track .mid { position:absolute; left:50%; top:-2px; bottom:-2px; width:1px; background:#b9bdc3; }
+  .cm-bar .track .fill { position:absolute; top:0; bottom:0; border-radius:3px; }
+  .cm-bar .v { width:46px; text-align:right; font-variant-numeric:tabular-nums; }
+  .cm-legend { display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--muted); margin:2px 0 10px; }
+  .cm-legend .scale { width:200px; height:10px; border-radius:3px; background:linear-gradient(90deg,#104281,#3987e5,#9ec5f4,#f0efec,#f4b0a9,#e34948,#9b1f1f); }
+  table.factors .catname { cursor:pointer; }
+  table.factors .catname:hover { color:var(--accent); text-decoration:underline; }
+  table.factors .cmchk { display:flex; flex-wrap:wrap; gap:2px 10px; margin-top:4px; font-weight:400; }
+  table.factors .cmchk label { display:flex; align-items:center; gap:3px; margin:0; font-size:11px; font-weight:400; color:var(--muted); cursor:pointer; }
+  table.cc { border-collapse:collapse; font-size:12.5px; background:#fff; }
+  table.cc th { background:#44546a; color:#fff; font-weight:600; padding:5px 7px; text-align:right; position:sticky; top:0; white-space:nowrap; }
+  table.cc th:first-child, table.cc td:first-child { text-align:left; }
+  table.cc td { padding:4px 7px; border-bottom:1px solid #e3e7eb; text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  table.cc tr.dim td { color:#8a97a6; }
+  table.cc td.bo { text-align:center; font-weight:700; }
+  table.cc td.bo.Both { background:#cdebd8; color:#0d5c32; } table.cc td.bo.Network { background:#e3f1fa; color:#0b6e99; }
+  table.cc td.bo.TotCrash { background:#fff0c9; color:#7a5300; }
+  table.cc td.sig { font-weight:700; color:#0d5c32; }
+  .cc-bars .row { display:flex; align-items:center; gap:8px; margin:4px 0; font-size:12px; }
+  .cc-bars .lb { width:150px; flex:none; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cc-bars .track { flex:1; position:relative; height:16px; }
+  .cc-bars .fill { position:absolute; left:0; top:2px; bottom:2px; border-radius:0 4px 4px 0; background:#2a78d6; }
+  .cc-bars .avg { position:absolute; top:-4px; bottom:-4px; width:0; border-left:2px dashed #d4a21a; }
+  .cc-bars .v { width:110px; flex:none; font-variant-numeric:tabular-nums; color:var(--muted); }
   .hidden { display:none !important; }
   .busy { cursor:progress; }
   .filter-box { background:#fff; padding:10px 12px; border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,.35); width:280px; font-size:12.5px; margin-bottom:22px; }
@@ -181,6 +265,7 @@
           <b>Crash frequency</b> &ndash; all crashes meeting the condition, split by the column you pick below (e.g. K / A / B / C / O).<br>
           <b>Total #, %</b> &ndash; all crashes meeting the condition, and their share of all crashes.<br>
           <b>Group #, %</b> &ndash; crashes of the group meeting the condition, and their share of the whole group.<br>
+          <b>Crashes / mi</b> &ndash; focus crashes under the condition divided by road miles: for a road attribute, the miles of road that have it; for a crash attribute, the miles of the segments where those crashes happened (hover a cell for the miles). The All row is the network average.<br>
           <b>&times; normal</b> &ndash; how many times more common the group is under the condition than overall (1.00 = no difference, 2.00 = twice, 0.50 = half). <b>&#9733;</b> marks the strongest clear condition in each category (highest &times; normal with Prob. &ge; 95%) &ndash; use it to choose between several 100% rows.<br>
           <b>Prob.</b> &ndash; how sure we are the group is over-represented under the condition (Poisson test against the overall rate).
           <span style="background:#dff3e6;color:#0d5c32;font-weight:700;padding:0 4px">&ge; 95%</span> clear,
@@ -207,13 +292,41 @@
           <span class="status" id="xlsxStatus"></span>
         </div>
         <h3>Choose factors</h3>
-        <label style="display:flex;gap:6px;font-weight:400;margin-top:0"><input type="checkbox" id="showAll" checked> show every value (uncheck to list only over-represented conditions)</label>
+        <div class="actions" style="margin-top:0">
+          <span>Table</span>
+          <select id="viewMode" style="width:auto">
+            <option value="columns">one row per column (simple)</option>
+            <option value="values">one row per value (detailed)</option>
+          </select>
+          <label id="showAllWrap" style="display:flex;gap:6px;font-weight:400;margin:0"><input type="checkbox" id="showAll" checked> show every value</label>
+        </div>
+        <div class="actions" style="margin-top:6px">
+          <span>Show columns</span>
+          <select id="ordFilter" style="width:auto">
+            <option value="all">all</option>
+            <option value="ordered">ordered only (for the correlation matrix)</option>
+            <option value="unordered">unordered only (for Cram&eacute;r&rsquo;s V)</option>
+          </select>
+        </div>
         <div class="actions" style="margin-top:6px">
           <span>Sort categories</span>
           <select id="catSort" style="width:auto">
             <option value="strength">Strongest first</option>
             <option value="name">Name (A&ndash;Z)</option>
           </select>
+        </div>
+        <div class="actions" style="margin-top:6px">
+          <span>Show rows with at least</span>
+          <input type="number" id="fltCrashes" min="0" step="1" placeholder="0" style="width:64px"><span>crashes and</span>
+          <input type="number" id="fltCpm" min="0" step="0.1" placeholder="0" style="width:64px"><span>crashes / mi</span>
+          <button class="link" id="fltClear">clear</button>
+        </div>
+        <div class="status" id="fltNote"></div>
+        <div class="actions" style="margin-top:4px">
+          <span><b>Use</b> boxes:</span>
+          <button class="link" id="cmAllOn">tick all shown</button><button class="link" id="cmAllOff">untick all</button>
+          <button class="link" id="cmRoadOn">road only (shown)</button>
+          <span class="status" style="margin:0"><span class="tag ord" style="margin:0">ordered</span> columns go to the correlation matrix (Spearman); <span class="tag unord" style="margin:0">unordered</span> columns go to Cram&eacute;r&rsquo;s V.</span>
         </div>
         <div class="actions" style="margin-top:6px">
           <span>Tick rows where Prob. &ge;</span>
@@ -228,8 +341,15 @@
           <button class="btn secondary" id="topNBtn">Apply</button>
           <button class="link" id="clearSel">clear</button>
         </div>
+        <div id="screenBox" class="card hidden" style="margin-top:10px"></div>
         <div class="scroll-table" style="margin-top:8px"><table class="factors" id="factorTable"></table></div>
         <div class="status" id="selCount"></div>
+        <div class="actions" style="margin-top:6px">
+          <button class="btn secondary" id="segRates">Download segment crash rates (ticked rows)</button>
+          <button class="btn secondary" id="cmOpen" title="Spearman: the ticked ordered columns vs the crash type">Correlation matrix (ticked ordered columns)</button>
+          <button class="btn secondary" id="cvOpen" title="Cramer's V between the ticked columns, counted per crash">Cram&eacute;r&rsquo;s V (ticked unordered columns)</button>
+          <span class="status" id="segRatesStatus"></span>
+        </div>
         <details><summary id="skipSummary">Skipped columns</summary><div id="skipList" class="status"></div></details>
         <div class="actions"><button class="btn" id="to4" disabled>Next: build final map &rarr;</button></div>
       </div>
@@ -237,8 +357,10 @@
 
     <!-- STEP 4 -->
     <section data-step="4" class="hidden">
-      <h2>4 &middot; Final map</h2>
-      <p class="hint">Roads are coloured by how many of your selected factors they meet. Use the filters to focus the map.</p>
+      <h2>4 &middot; High-risk network</h2>
+      <p class="hint">Systemic approach (FHWA, MnDOT, Iowa DOT): the crash data chose the risk factors; the <b>road</b> factors are now
+        applied to <b>every segment</b> of the network, with or without crashes. Crash conditions (lighting, driver, vehicle ...) can&rsquo;t be
+        applied to a road without crashes, so they are kept as the crash profile and not scored.</p>
       <div id="modeBox" class="hidden">
         <label>Factors to apply</label>
         <select id="setMode">
@@ -246,20 +368,34 @@
           <option value="all">Same factors for all selected types</option>
         </select>
       </div>
-      <div class="card" id="factorList" style="max-height:220px;overflow-y:auto"></div>
 
       <h3>Crash types</h3>
       <div class="checklist" id="typeChecks"></div>
 
-      <div class="row">
-        <div><label>Min. crashes for a crash-based factor</label><input type="number" id="minCrashes" value="1" min="1"></div>
-        <div style="display:flex;align-items:flex-end"><label style="display:flex;gap:6px;font-weight:400"><input type="checkbox" id="includeEmpty"> include roads with no focus crashes</label></div>
+      <h3>Weights</h3>
+      <p class="hint" style="margin:0 0 4px">Points a segment gets for each factor (default 1; 0 = off). One value per column counts &mdash; the highest weight met.
+        Max Score = the highest weight in each column, added up.</p>
+      <div class="actions" style="margin:0 0 6px">
+        <button class="link" id="wAll1">All 1 (count of factors)</button>
+        <button class="link" id="wMount" title="Binomial test with the alpha / min. crashes / min. ratio from the Column check page">Mountains: Both 2, Network / Tot Crash 1, Neither 0</button>
+        <span class="status" id="wStatus" style="margin:0"></span>
       </div>
+      <div class="card" id="weightBox" style="max-height:320px;overflow-y:auto;padding:6px"></div>
 
-      <p class="hint" style="margin-top:14px">Use the <b>live filter on the map</b> (bottom-left) to show segments by number of factors met.</p>
+      <h3>High-risk network cut-off</h3>
+      <div class="row">
+        <div><label>Rule</label><select id="hrnMode">
+          <option value="top">Top % of segments by score</option>
+          <option value="score">Score &ge; % of Max Score</option></select></div>
+        <div><label id="hrnP1Lbl">Primary: top %</label><input type="number" id="hrnP1" value="5" min="0" max="100" step="1"></div>
+        <div><label id="hrnP2Lbl">Secondary: next %</label><input type="number" id="hrnP2" value="10" min="0" max="100" step="1"></div>
+      </div>
+      <label title="Rank segments within each value of a road column (e.g. functional class or urban/rural), as agencies do per facility type">Rank within (facility type)</label>
+      <select id="hrnWithin"><option value="">whole network</option></select>
+      <div class="card" id="hrnSummary" style="margin-top:8px"></div>
       <div class="status" id="scoreStatus"></div>
 
-      <h3>Highest ranked segments</h3>
+      <h3>Highest scoring segments</h3>
       <ol class="top" id="topRoads"></ol>
       <div class="actions">
         <button class="btn secondary" id="expCsv">Export CSV</button>
@@ -267,7 +403,7 @@
       </div>
 
       <h3>Report</h3>
-      <p class="hint" style="margin:0 0 4px">Risk factor tables per crash type (Based On, NF, pF, pN, pC, Max Score) and the highest scoring segments, laid out like the Mountains HRN risk factor tables.</p>
+      <p class="hint" style="margin:0 0 4px">Risk factor tables per crash type (Based On, weight, NF, pF, pN, pC, Max Score), the crash profile, the high-risk network summary and the highest scoring segments.</p>
       <label>Report title</label>
       <input type="text" id="reportTitle" placeholder="e.g. Mountains – Risk Factors">
       <div class="actions">
@@ -281,6 +417,81 @@
   <div id="dragbar" title="Drag to resize the panel (double-click to reset)"></div>
   <div id="map"></div>
 </main>
+
+<div class="cm-overlay hidden" id="ccOverlay" style="z-index:5500">
+  <div class="cm-head">
+    <h2>Column check</h2>
+    <select id="ccCol" style="width:auto;max-width:280px"></select>
+    <span id="ccInfo" style="font-size:12.5px;color:#c9d6e2"></span>
+    <span class="sp"></span>
+    <label title="Significance level for the binomial tests">&alpha; <input type="number" id="ccAlpha" value="0.05" min="0.0001" max="0.5" step="0.01"></label>
+    <label title="A value needs at least this many focus crashes (from the Step 3 filter)">Min. crashes <input type="number" id="ccMinN" min="0" step="1" placeholder="0"></label>
+    <label title="pF must be at least this many times pN (or pC). Blank = no minimum">Min. ratio <input type="number" id="ccMinRatio" min="0" step="0.1" placeholder="none"></label>
+    <label>Sort <select id="ccSort" style="width:auto;padding:3px"><option value="value">by value</option><option value="cpm">by crashes / mi</option><option value="nf">by focus crashes</option></select></label>
+    <button class="btn secondary" id="ccXlsx">Download Excel</button>
+    <button class="btn" id="ccClose">Close</button>
+  </div>
+  <div class="cm-body">
+    <div class="cm-grid" id="ccMain"></div>
+    <div class="cm-side" id="ccSide"></div>
+  </div>
+</div>
+
+<div class="cm-overlay hidden" id="cpOverlay" style="z-index:5400">
+  <div class="cm-head">
+    <h2>Spearman + Cram&eacute;r&rsquo;s V vs binomial test</h2>
+    <span id="cpInfo" style="font-size:12.5px;color:#c9d6e2"></span>
+    <span class="sp"></span>
+    <label title="Significance level for the binomial tests and for rho / V">&alpha; <input type="number" id="cpAlpha" value="0.05" min="0.0001" max="0.5" step="0.01"></label>
+    <label title="Binomial: a value needs at least this many focus crashes">Min. crashes <input type="number" id="cpMinN" min="0" step="1" placeholder="0"></label>
+    <label title="Binomial: pF must be at least this many times pN (or pC). Blank = no minimum">Min. ratio <input type="number" id="cpMinRatio" min="0" step="0.1" placeholder="none"></label>
+    <label title="Screening flags a column when |rho| or V is at least this (0.1 = weak or stronger)">Screen if &ge; <input type="number" id="cpThr" value="0.1" min="0" max="1" step="0.05"></label>
+    <button class="btn secondary" id="cpXlsx">Download Excel</button>
+    <button class="btn" id="cpClose">Close</button>
+  </div>
+  <div class="cm-body">
+    <div class="cm-grid" id="cpMain"></div>
+    <div class="cm-side" id="cpSide"></div>
+  </div>
+</div>
+
+<div class="cm-card hidden" id="cmCard"></div>
+<div class="cm-overlay hidden" id="cvOverlay">
+  <div class="cm-head">
+    <h2>Cram&eacute;r&rsquo;s V matrix</h2>
+    <span id="cvInfo" style="font-size:12.5px;color:#c9d6e2"></span>
+    <span class="sp"></span>
+    <label title="Columns with more values keep the most common ones and fold the rest into Other">Max. categories <input type="number" id="cvMaxLev" value="12" min="2" max="40" step="1"></label>
+    <label>Strong if V &ge; <input type="number" id="cvThr" value="0.5" min="0" max="1" step="0.05"></label>
+    <label>Show <select id="cvShow" style="width:auto;padding:3px"><option value="all">all</option><option value="road">road only</option><option value="crash">crash only</option></select></label>
+    <label title="Hide columns whose V with the focus crash (yes/no) is below this">Min V with crash type <input type="number" id="cvMinV" min="0" max="1" step="0.05" placeholder="none"></label>
+    <button class="btn secondary" id="cvRun">Recalculate</button>
+    <button class="btn secondary" id="cvXlsx">Download Excel</button>
+    <button class="btn" id="cvClose">Close</button>
+  </div>
+  <div class="cm-body">
+    <div class="cm-grid" id="cvGrid"></div>
+    <div class="cm-side" id="cvSide"></div>
+  </div>
+</div>
+<div class="cm-overlay hidden" id="cmOverlay">
+  <div class="cm-head">
+    <h2>Spearman correlation matrix</h2>
+    <span id="cmInfo" style="font-size:12.5px;color:#c9d6e2"></span>
+    <span class="sp"></span>
+    <label title="Leave blank to use every segment">Min. segment length (mi) <input type="number" id="cmMinLen" value="" placeholder="none" min="0" step="0.05"></label>
+    <label>Redundant if |&rho;| &ge; <input type="number" id="cmThr" value="0.7" min="0" max="1" step="0.05"></label>
+    <label title="Filter the result: which variables to show">Show <select id="cmShow" style="width:auto;padding:3px"><option value="all">all</option><option value="road">road only</option><option value="crash">crash only</option></select></label>
+    <label title="Filter the result: hide variables whose |rho| with the first crash outcome is below this">Min |&rho;| with crash rate <input type="number" id="cmMinRho" min="0" max="1" step="0.05" placeholder="none"></label>
+    <button class="btn secondary" id="cmRun">Recalculate</button>
+    <button class="btn secondary" id="cmXlsx">Download Excel</button>
+    <button class="btn" id="cmClose">Close</button>
+  </div>
+  <div class="cm-body">
+    <div class="cm-grid" id="cmGrid"></div>
+    <div class="cm-side" id="cmSide"></div>
+  </div>
+</div>
 
 <script>
 "use strict";
@@ -389,7 +600,7 @@ function goStep(n) {
 }
 function unlock(n) { S.maxStep = Math.max(S.maxStep, n); renderStepper(); }
 function invalidateFrom(n) { // reset downstream results when upstream choices change
-  if (n <= 3) { S.scan = null; S.selected = new Map(); S.sets = {}; S.cur = ALL; $("scanOut").classList.add("hidden"); $("to4").disabled = true; if ($("setTabs")) renderSetTabs(); }
+  if (n <= 3) { S.scan = null; S.selected = new Map(); S.sets = {}; S.cur = ALL; S.cm = null; S.cv = null; if ($("screenBox")) $("screenBox").classList.add("hidden"); $("scanOut").classList.add("hidden"); $("to4").disabled = true; if ($("setTabs")) renderSetTabs(); }
   if (n <= 2) { $("to3").disabled = true; }
   S.maxStep = Math.min(S.maxStep, n);
   renderStepper();
@@ -413,7 +624,7 @@ $("crashFile").onchange = async (e) => {
     $("coordBox").classList.remove("hidden");
     $("crsWarn").textContent = [d.latlon.hint, d.latlon.projected_warning].filter(Boolean).join(" ");
     if (d.latlon.projected_warning) $("crashCrs").value = "";
-    setStatus($("crashStatus"), `${fmt(d.rows)} crashes, ${d.columns.length} columns${d.sheet ? " \u2014 read from " + d.sheet : ""}`, "ok");
+    setStatus($("crashStatus"), `${fmt(d.rows)} crashes, ${d.columns.length} columns${d.sheet ? " \u2014 read from " + d.sheet : ""}${d.merged ? `; ${fmt(d.merged)} spelling variants merged (e.g. CITY STREET = City Street)` : ""}`, "ok");
     invalidateFrom(2); $("to2").classList.add("hidden");
   } catch (err) { S.crash = null; setStatus($("crashStatus"), err.message, "err"); }
   updateBuildEnabled();
@@ -425,7 +636,7 @@ $("roadFile").onchange = async (e) => {
   try {
     const d = await upload("road", f);
     S.road = d;
-    setStatus($("roadStatus"), `${fmt(d.rows)} road segments, ${d.columns.length} attributes`, "ok");
+    setStatus($("roadStatus"), `${fmt(d.rows)} road segments, ${d.columns.length} attributes${d.merged ? `; ${fmt(d.merged)} spelling variants merged` : ""}`, "ok");
     const gj = await apiGet("/api/geometry");
     S.features = gj.features;
     drawBaseRoads(gj, true);
@@ -596,6 +807,7 @@ function renderSetTabs() {
 }
 const totalSelected = () => { saveCur(); return Object.values(S.sets).reduce((a, st) => a + (st.selected ? st.selected.size : 0), 0); };
 const condKey = (c) => `${c.column}|${c.op}|${c.value}`;
+const CPM_TIP = "Focus crashes under the condition divided by road miles. Road attribute: miles of road that have it. Crash attribute: miles of the segments where those crashes happened. All years in the file together. All row = all focus crashes / all network miles.";
 const XN_TIP = "How many times more common the group is under this condition than normal (1.00 = no difference, 2.00 = twice as common, 0.50 = half). \u2605 = strongest clear condition in the category (highest \u00d7 normal with Prob. \u2265 95%).";
 const pct = (x) => x == null ? "" : `${Math.round(100 * x)}%`;
 const probClass = (p) => p == null ? "" : p >= 0.95 ? "p-hi" : p >= 0.85 ? "p-mid" : "";
@@ -645,14 +857,771 @@ async function downloadXlsx(keys, btn) {
   btn.disabled = false;
 }
 $("xlsxOne").onclick = () => downloadXlsx([S.cur], $("xlsxOne"));
+/* ---------- Cramer's V (per crash) ---------- */
+function cvColor(v) {  // one hue: white (0) -> dark blue (1)
+  const a = [252, 252, 251], b = [16, 66, 129], t = Math.max(0, Math.min(1, v));
+  return "#" + a.map((x, j) => Math.round(x + (b[j] - x) * t).toString(16).padStart(2, "0")).join("");
+}
+function cvPayload() {
+  return {focus: {column: S.focus.column, values: setTypes(S.cur)}, extra: S.extra,
+    group1_name: setName(S.cur), columns: cmColumns().filter((c) => cmPick(c).on && !colOrdered(c)),
+    zero_blank: cmColumns().filter((c) => cmPick(c).zero), groups: cmGroups(), max_levels: +$("cvMaxLev").value || 12};
+}
+async function cvRun() {
+  $("cvGrid").innerHTML = '<div class="status">Calculating ...</div>'; $("cvSide").innerHTML = "";
+  if (!cvPayload().columns.length) { $("cvGrid").innerHTML = '<div class="status warn">No <b>unordered</b> column is ticked. Tick unordered columns (e.g. lighting, road system) in the table.</div>'; return; }
+  try { S.cv = await api("/api/cramers", cvPayload()); S.cvFor = S.cur; cvRender(); renderScreening(); }
+  catch (err) { $("cvGrid").innerHTML = `<div class="status err">${esc(err.message)}</div>`; }
+}
+function cvRender() {
+  const d = S.cv, thr = +$("cvThr").value || 0.5, outs = new Set(d.outcome), o0 = d.outcome[0];
+  const show = $("cvShow").value, minV = +$("cvMinV").value || 0;
+  const vis = d.names.map((_, i) => i).filter((i) => outs.has(i) || (
+    (show === "all" || d.kinds[i] === show || d.sources[i] === show) &&
+    (minV <= 0 || (d.V[o0][i] != null && d.V[o0][i] >= minV))));
+  const num = {}; vis.forEach((i, n) => { num[i] = n + 1; });
+  $("cvInfo").textContent = `${setName(S.cur)} \u00b7 ${vis.length - d.outcome.length} columns shown` +
+    (d.names.length - vis.length ? ` (${d.names.length - vis.length} hidden by filters)` : "") + ` \u00b7 ${fmt(d.n_crashes)} crashes, ${fmt(d.n_focus)} ${setName(S.cur)}`;
+  const tag = (i) => `<span class="cm-tag ${d.sources[i]}">${d.sources[i]}</span><span class="cm-tag" style="background:#eef0f3;color:#5b6470">${d.kinds[i]}</span>`;
+  let h = `<div class="cm-legend"><span>0 unrelated</span><span class="scale" style="background:linear-gradient(90deg,#fcfcfb,#104281)"></span><span>1 fully related</span>
+    <span style="margin-left:14px">no direction &middot; dashed = V &ge; ${thr} between two columns &middot; gold rows = crash type (yes/no) &middot; click a cell for the cross-tab</span></div>`;
+  h += `<table class="cm"><thead><tr><th class="rl">#&nbsp; Column</th>${vis.map((j) => `<th title="${esc(d.names[j])}">${num[j]}</th>`).join("")}</tr></thead><tbody>`;
+  for (const i of vis) {
+    h += `<tr class="${outs.has(i) ? "out" : ""}"><th class="rl ${outs.has(i) ? "out" : ""}" ${outs.has(i) ? "" : `data-cvrow="${esc(d.colof[i])}" style="cursor:pointer"`} title="${esc(d.names[i] + " \u2014 " + d.labels[i].length + " categories" + (outs.has(i) ? "" : "\nClick to see the values and how each relates to the crash type and KSI"))}">${num[i]}.&nbsp; ${esc(d.names[i])}${tag(i)}</th>`;
+    for (const j of vis) {
+      if (j > i) break;
+      if (i === j) { h += `<td class="diag">1</td>`; continue; }
+      const v = d.V[i][j];
+      if (v == null) { h += `<td style="background:#f6f6f4" title="Not enough data"></td>`; continue; }
+      const strong = v >= thr && !outs.has(i) && !outs.has(j);
+      const tip = `${d.names[i]}\n${d.names[j]}\nV = ${v.toFixed(3)}, p = ${d.P[i][j] < 0.0001 ? "<0.0001" : d.P[i][j].toFixed(4)}, ${fmt(d.N[i][j])} crashes` +
+        (d.LOW[i][j] > 0.2 ? `\n${Math.round(100 * d.LOW[i][j])}% of cells have an expected count under 5: p is less reliable` : "") + "\nClick for the cross-tab";
+      h += `<td class="${strong ? "red" : ""}" data-ci="${i}" data-cj="${j}" style="cursor:pointer;background:${cvColor(v)};color:${v >= 0.45 ? "#fff" : "#1f2328"}" title="${esc(tip)}">${v.toFixed(2).replace(/^0/, "")}</td>`;
+    }
+    h += "</tr>";
+  }
+  $("cvGrid").innerHTML = h + "</tbody></table>";
+  $("cvGrid").querySelectorAll("td[data-ci]").forEach((td) => td.onclick = () => cvCard(+td.dataset.ci, +td.dataset.cj));
+  $("cvGrid").querySelectorAll("th.rl[data-cvrow]").forEach((th) => th.onclick = () => ccOpen(th.dataset.cvrow));
+  // side: ranking against the crash type, then strong pairs
+  let side = "";
+  d.outcome.forEach((o) => {
+    const items = vis.filter((j) => !outs.has(j) && d.V[o][j] != null).map((j) => [j, d.V[o][j]]).sort((a, b) => b[1] - a[1]);
+    side += `<h3>V with ${esc(d.names[o])}</h3><p class="hint" style="margin-top:0">How strongly each column&rsquo;s categories differ in their share of this crash type. Click a bar for the cross-tab.</p>`;
+    side += items.slice(0, 25).map(([j, v]) => `<div class="cm-bar" data-o="${o}" data-j="${j}" style="cursor:pointer" title="p = ${d.P[o][j] < 0.0001 ? "<0.0001" : d.P[o][j].toFixed(4)}">
+      <span class="lb">${num[j]}. ${esc(d.names[j])}</span><span class="track"><span class="fill" style="left:0;width:${100 * v}%;background:${cvColor(Math.max(0.25, v))}"></span></span><span class="v">${v.toFixed(2)}</span></div>`).join("");
+  });
+  const pairs = [];
+  for (const i of vis) for (const j of vis) { if (j >= i) break; const v = d.V[i][j]; if (v != null && !outs.has(i) && !outs.has(j) && v >= thr) pairs.push([i, j, v]); }
+  pairs.sort((a, b) => b[2] - a[2]);
+  side += `<h3>Strongly related columns (V &ge; ${thr})</h3>` + (pairs.length ? `<p class="hint" style="margin-top:0">These largely carry the same information (duplicates, or one condition implying another).</p>` +
+    pairs.slice(0, 40).map(([i, j, v]) => `<div style="margin:3px 0"><b>${v.toFixed(2)}</b> &nbsp;${num[i]}. ${esc(d.names[i])} &harr; ${num[j]}. ${esc(d.names[j])}</div>`).join("") : `<p class="hint">None at this threshold.</p>`);
+  side += `<h3>How it is built</h3><p class="hint" style="margin-top:0">One row per crash (all crashes in the analysis). Each column&rsquo;s categories are its values (number columns in ranges use the table&rsquo;s groups; rare values beyond the maximum are folded into Other; blanks and &ldquo;0 = blank&rdquo; codes are left out).
+    Road columns use the attribute of the segment each crash is on. V = &radic;(&chi;&sup2; / (n &times; (k&minus;1))). V has no direction: open the cross-tab to see which categories are over- or under-represented.</p>`;
+  $("cvSide").innerHTML = side;
+  $("cvSide").querySelectorAll(".cm-bar[data-o]").forEach((b) => b.onclick = () => cvCard(+b.dataset.o, +b.dataset.j));
+}
+async function cvCard(i, j) {
+  const card = $("cmCard");
+  // the column with more categories goes down the rows, so the table stays narrow
+  if (S.cv && S.cv.labels[j].length > S.cv.labels[i].length) [i, j] = [j, i];
+  card.innerHTML = `<div class="status">Loading ...</div>`; card.classList.remove("hidden");
+  try {
+    const x = await api("/api/crosstab", {i, j});
+    const st = x.stats || {};
+    const v = st.v == null ? "&ndash;" : st.v.toFixed(3);
+    let h = `<button class="x" title="Close">&times;</button>
+      <div style="font-size:13px;margin-bottom:6px"><b style="font-size:16px">V = ${v}</b> &nbsp; &chi;&sup2; = ${st.chi2 == null ? "&ndash;" : fmt(Math.round(st.chi2))}, df = ${st.df ?? "&ndash;"},
+      p = ${st.p == null ? "&ndash;" : st.p < 0.0001 ? "&lt;0.0001" : st.p.toFixed(4)} &nbsp;&middot;&nbsp; ${fmt(st.n || 0)} crashes</div>
+      <div class="hint" style="margin:0 0 4px">Rows: <b>${esc(x.row)}</b> &middot; columns: <b>${esc(x.col)}</b>. Each cell: crashes, and how many times more (red) or less (blue) common than if the two were unrelated.
+      ${st.low > 0.2 ? `<br><b>${Math.round(100 * st.low)}%</b> of cells expect fewer than 5 crashes, so the p-value is less reliable.` : ""}</div>`;
+    h += `<div class="vals" style="max-height:60vh"><table class="cvx"><thead><tr><th class="rl"></th>${x.col_labels.map((c) => `<th>${esc(c)}</th>`).join("")}<th>Total</th></tr></thead><tbody>`;
+    x.row_labels.forEach((rl, a) => {
+      const tot = x.counts[a].reduce((p, q) => p + q, 0);
+      h += `<tr><th class="rl" style="text-align:left">${esc(rl)}</th>` + x.counts[a].map((n, b) => {
+        const r = x.ratio[a][b];
+        const bg = r == null ? "#fff" : r >= 1 ? cmColor(Math.min(1, (r - 1) / 1.5)) : cmColor(-Math.min(1, (1 - r) / 0.75));
+        const dark = r != null && (r >= 2.1 || r <= 0.5);
+        return `<td style="background:${bg};color:${dark ? "#fff" : "#1f2328"}">${fmt(n)}<small style="color:${dark ? "#fff" : ""}">${r == null ? "" : r.toFixed(2) + "&times;"}</small></td>`;
+      }).join("") + `<td>${fmt(tot)}</td></tr>`;
+    });
+    h += `</tbody></table></div>`;
+    card.innerHTML = h;
+    card.querySelector(".x").onclick = () => card.classList.add("hidden");
+  } catch (err) { card.innerHTML = `<button class="x">&times;</button><div class="status err">${esc(err.message)}</div>`; card.querySelector(".x").onclick = () => card.classList.add("hidden"); }
+}
+$("cvOpen").onclick = () => {
+  if (!S.scan) return;
+  if (!cmColumns().some((c) => cmPick(c).on)) { setStatus($("segRatesStatus"), "Tick 'matrix' for at least one column.", "warn"); return; }
+  $("cvOverlay").classList.remove("hidden"); cvRun();
+};
+$("cvClose").onclick = () => { $("cmCard").classList.add("hidden"); $("cvOverlay").classList.add("hidden"); if (S.scan) renderScan(); };
+$("cvRun").onclick = cvRun;
+$("cvMaxLev").onchange = cvRun;
+["cvThr", "cvMinV"].forEach((id) => $(id).oninput = () => { if (S.cv) cvRender(); });
+$("cvShow").onchange = () => { if (S.cv) cvRender(); };
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape" || $("cvOverlay").classList.contains("hidden") || !$("ccOverlay").classList.contains("hidden")) return;
+  if (!$("cmCard").classList.contains("hidden")) $("cmCard").classList.add("hidden"); else $("cvClose").click();
+});
+$("cvXlsx").onclick = async () => {
+  const btn = $("cvXlsx"); btn.disabled = true;
+  try {
+    const res = await fetch("/api/cramers-xlsx", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(cvPayload())});
+    if (!res.ok) { let msg = res.statusText; try { msg = (await res.json()).error || msg; } catch (e) { /* not JSON */ } throw new Error(msg); }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(await res.blob()); a.download = "hrn_cramers_v_" + setName(S.cur).replace(/[^\w-]+/g, "_") + ".xlsx"; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  } catch (err) { $("cvInfo").textContent = "Download failed: " + err.message; }
+  btn.disabled = false;
+};
+
+/* ---------- Screening results: Spearman + Cramer's V side by side, then column check ---------- */
+function renderScreening() {
+  const box = $("screenBox");
+  const cm = S.cm && S.cmFor === S.cur ? S.cm : null, cv = S.cv && S.cvFor === S.cur ? S.cv : null;
+  if (!box || (!cm && !cv) || !S.scan) { if (box) box.classList.add("hidden"); return; }
+  const thrR = +$("cmThr").value || 0.7, thrV = +$("cvThr").value || 0.5;
+  const cols = [];
+  const add = (c) => { if (c && !c.startsWith("__") && !cols.includes(c)) cols.push(c); };
+  if (cm) cm.colof.forEach(add);
+  if (cv) cv.colof.forEach(add);
+  const label = (c) => c.startsWith("road:") ? "Road: " + c.slice(5) : c;
+  const rows = cols.map((c) => {
+    const r = {c, rho: null, rhoAt: "", v: null, p: null, ov: new Set(), kind: colOrdered(c) ? "ordered" : ""};
+    if (cm) {
+      const mains = cm.main_outcome || cm.outcome, o = mains[0];
+      cm.colof.forEach((cc, i) => {
+        if (cc !== c || cm.sources[i] === "outcome") return;  // per-value crash outcomes are part of the total: not a trend
+        const x = cm.rho[o][i];
+        if (x != null && (r.rho == null || Math.abs(x) > Math.abs(r.rho))) { r.rhoN = cm.n ? cm.n[o][i] : null; r.rho = x; r.rhoAt = cm.names[i].includes(" = ") ? cm.names[i].split(" = ").slice(1).join(" = ") : ""; }
+        cm.colof.forEach((c2, j) => { if (c2 !== c && !c2.startsWith("__") && cm.sources[j] !== "outcome" && cm.rho[i][j] != null && Math.abs(cm.rho[i][j]) >= thrR) r.ov.add(label(c2)); });
+      });
+    }
+    if (cv) {
+      const i = cv.colof.indexOf(c), o = cv.outcome[0];
+      if (i >= 0) {
+        r.v = cv.V[o][i]; r.p = cv.P[o][i]; r.kind = cv.kinds[i];
+        cv.colof.forEach((c2, j) => { if (j !== i && !c2.startsWith("__") && cv.V[i][j] != null && cv.V[i][j] >= thrV) r.ov.add(label(c2)); });
+      }
+    }
+    r.score = Math.max(Math.abs(r.rho || 0), r.v || 0);
+    return r;
+  }).sort((a, b) => b.score - a.score);
+  const strength = (x) => x == null ? "" : x >= 0.5 ? "strong" : x >= 0.3 ? "moderate" : x >= 0.1 ? "weak" : "none";
+  let h = `<b>Screening results</b> <span class="status">${esc(setName(S.cur))} &middot; ${cm ? "Spearman" : ""}${cm && cv ? " + " : ""}${cv ? "Cram&eacute;r&rsquo;s V" : ""} &middot; strongest first</span>
+    <p class="hint" style="margin:4px 0 0">Use this to shortlist columns, then click <b>Column check</b> to pick the value(s) and tick them as factors.
+    <b>Ordered</b> columns get &rho; (trend with ${esc(setName(S.cur))} crashes / mi across segments); <b>unordered</b> columns get V (how much their categories differ in their share of ${esc(setName(S.cur))} crashes, no direction). Both are compared with ${esc(setName(S.cur))} only.</p>
+    <table class="scr"><thead><tr><th>Column</th><th>Spearman &rho;</th><th>Cram&eacute;r&rsquo;s V</th><th>p (V)</th><th>Overlaps with</th><th></th></tr></thead><tbody>`;
+  rows.forEach((r) => {
+    h += `<tr><td>${esc(label(r.c))}<span class="cm-tag ${r.c.startsWith("road:") ? "road" : "crash"}">${r.c.startsWith("road:") ? "road" : "crash"}</span>${r.kind ? `<span class="cm-tag" style="background:#eef0f3;color:#5b6470">${r.kind}</span>` : ""}</td>
+      <td class="st" style="color:${r.rho == null ? "inherit" : r.rho > 0 ? "#b42318" : "#185fa5"}" title="${r.rhoAt ? "strongest value: " + esc(r.rhoAt) : ""}">${r.rho == null ? "&ndash;" : cmFmt(r.rho)}${r.rhoAt ? `<small style="display:block;font-weight:400;color:var(--muted)">${esc(r.rhoAt)}</small>` : ""}</td>
+      <td class="st">${r.v == null ? "&ndash;" : r.v.toFixed(2)} <small style="font-weight:400;color:var(--muted)">${strength(r.v)}</small></td>
+      <td>${r.p == null ? "&ndash;" : r.p < 0.0001 ? "&lt;0.0001" : r.p.toFixed(4)}</td>
+      <td class="ov">${[...r.ov].slice(0, 4).map(esc).join(", ")}${r.ov.size > 4 ? ` +${r.ov.size - 4}` : ""}</td>
+      <td><button class="link" data-scc="${esc(r.c)}">Column check &rsaquo;</button></td></tr>`;
+  });
+  h += `</tbody></table>
+    <div class="actions" style="margin-top:8px"><button class="btn secondary" id="cpOpen">Compare with binomial test &rsaquo;</button>
+    <span class="status" style="margin:0">Runs the binomial test (Network / Tot Crash / Both) on every column above and shows where the two methods agree.</span></div>`;
+  box.innerHTML = h;
+  box.classList.remove("hidden");
+  S.screenRows = rows;
+  box.querySelectorAll("[data-scc]").forEach((b) => b.onclick = () => ccOpen(b.dataset.scc));
+  $("cpOpen").onclick = cpOpen;
+}
+
+/* ---------- Spearman + Cramer's V vs the binomial test ---------- */
+function erfc(x) {  // Abramowitz & Stegun 7.1.26
+  const t = 1 / (1 + 0.3275911 * x);
+  return t * (0.254829592 + t * (-0.284496736 + t * (1.421413780 + t * (-1.453152027 + t * 1.061405429)))) * Math.exp(-x * x);
+}
+const rhoP = (r, n) => (r == null || !n || n < 4) ? null : erfc(Math.abs(r) * Math.sqrt(n - 1) / Math.SQRT2);
+function cpPayload() {
+  const cols = (S.screenRows || []).map((r) => {
+    const isRho = r.rho != null;
+    const zero = cmPick(r.c).zero;  // "0 = blank": 0 is not recorded, so it is not a value to test
+    const conds = ccConds(r.c).filter((q) => !(zero && (String(q.value).trim() === "0" || /^0(\.0+)?$/.test(String(q.value).trim()))));
+    return {column: r.c, conditions: conds, ordered: colOrdered(r.c),
+      screen: isRho ? {method: "Spearman", value: r.rho, p: rhoP(r.rho, r.rhoN), at: r.rhoAt}
+        : r.v != null ? {method: "Cramer's V", value: r.v, p: r.p} : {}};
+  }).filter((c) => c.conditions.length);
+  return {focus: {column: S.focus.column, values: setTypes(S.cur)}, extra: S.extra, columns: cols,
+    alpha: +$("cpAlpha").value || 0.05, min_n: +$("cpMinN").value || 0, min_ratio: +$("cpMinRatio").value || 0,
+    threshold: $("cpThr").value === "" ? 0.1 : +$("cpThr").value, group1_name: setName(S.cur)};
+}
+function cpOpen() {
+  if (!S.screenRows || !S.screenRows.length) return;
+  if ($("cpMinN").value === "") $("cpMinN").value = $("ccMinN").value || $("fltCrashes").value || "";
+  $("cpOverlay").classList.remove("hidden");
+  cpRun();
+}
+async function cpRun() {
+  $("cpMain").innerHTML = '<div class="status">Running the binomial test on every column ...</div>'; $("cpSide").innerHTML = "";
+  try { S.cp = await api("/api/compare", cpPayload()); cpRender(); }
+  catch (err) { $("cpMain").innerHTML = `<div class="status err">${esc(err.message)}</div>`; }
+}
+function cpRender() {
+  const d = S.cp, g1 = setName(S.cur);
+  const AG = {"Both methods": ["#d9ead3", "#1c5a34"], "Spearman / V only": ["#dde7f5", "#1f4f8f"], "Binomial only": ["#fff2cc", "#7a5a00"], "Neither": ["#f2f2f2", "#5b6470"]};
+  const BC = {"Both": "#d9ead3", "Network": "#dde7f5", "Tot Crash": "#fff2cc"};
+  $("cpInfo").textContent = `${g1} \u00b7 ${d.rows.length} columns`;
+  const hasCm = !!(S.cm && S.cmFor === S.cur), hasCv = !!(S.cv && S.cvFor === S.cur);
+  let h = (!hasCm || !hasCv) ? `<div class="status warn" style="margin:0 0 8px">${!hasCv ? "Cram&eacute;r&rsquo;s V has not been built for " + esc(g1) + " yet, so unordered columns are missing. Close this, click <b>Cram&eacute;r&rsquo;s V (ticked unordered columns)</b>, then compare again." : "The correlation matrix (Spearman) has not been built for " + esc(g1) + " yet, so ordered columns are missing."}</div>` : "";
+  h += `<table class="cc"><thead><tr><th class="l">Column</th><th title="Spearman rho vs ${esc(g1)} crashes / mi (ordered columns)">Spearman &rho;</th><th>p (&rho;)</th>
+    <th title="Cramer's V vs ${esc(g1)} crash yes/no (unordered columns)">Cram&eacute;r&rsquo;s V</th><th>p (V)</th>
+    <th title="|rho| or V at least ${d.threshold} and p &lt; ${d.alpha}">Spearman / V</th>
+    <th class="l" title="Values where the binomial test is significant: Network (vs pN), Tot Crash (vs pC) or Both">Binomial: qualifying values</th>
+    <th title="Best weight among the qualifying values (Both 2, others 1)">Max pts</th><th>Binomial</th><th>Agreement</th><th></th></tr></thead><tbody>`;
+  d.rows.forEach((r) => {
+    const ag = AG[r.agree];
+    const isR = r.method === "Spearman", isV = r.method === "Cramer's V";
+    const strength = (x) => x == null ? "" : Math.abs(x) >= 0.5 ? "strong" : Math.abs(x) >= 0.3 ? "moderate" : Math.abs(x) >= 0.1 ? "weak" : "none";
+    const vals = r.values.length ? r.values.map((v) => `<span style="display:inline-block;margin:1px 4px 1px 0;padding:1px 6px;border-radius:6px;background:${BC[v.based_on]}" title="NF ${v.NF} &middot; pF/pN ${v.r_net == null ? "-" : v.r_net.toFixed(2) + "x"} &middot; pF/pC ${v.r_tot == null ? "-" : v.r_tot.toFixed(2) + "x"}">${esc(v.value)} <small>${esc(v.based_on)}</small></span>`).join("")
+      : `<span class="status" style="margin:0">none of ${r.n_values} values</span>`;
+    h += `<tr><td class="l" style="text-align:left">${esc(r.label)}<span class="tag ${r.source}">${r.source}</span>${r.ordered ? '<span class="tag ord">ordered</span>' : '<span class="tag unord">unordered</span>'}</td>
+      <td style="font-weight:600;color:${isR && r.stat != null ? (r.stat > 0 ? "#b42318" : "#185fa5") : "inherit"}">${isR && r.stat != null ? cmFmt(r.stat) + `<small style="display:block;font-weight:400;color:var(--muted)">${strength(r.stat)}</small>` : "&ndash;"}</td>
+      <td>${isR ? pFmt(r.p) : "&ndash;"}</td>
+      <td style="font-weight:600">${isV && r.stat != null ? r.stat.toFixed(2) + `<small style="display:block;font-weight:400;color:var(--muted)">${strength(r.stat)}</small>` : "&ndash;"}</td>
+      <td>${isV ? pFmt(r.p) : "&ndash;"}</td>
+      <td>${r.screen_flag ? "<b>yes</b>" : "no"}</td>
+      <td class="l" style="text-align:left;white-space:normal;min-width:260px;max-width:460px">${vals}</td>
+      <td>${r.max_points || ""}</td>
+      <td>${r.binom_flag ? "<b>yes</b>" : "no"}</td>
+      <td><span style="padding:2px 8px;border-radius:8px;background:${ag[0]};color:${ag[1]};font-weight:600;white-space:nowrap">${esc(r.agree)}</span></td>
+      <td><button class="link" data-cpcc="${esc(r.column)}">Column check &rsaquo;</button></td></tr>`;
+  });
+  $("cpMain").innerHTML = h + "</tbody></table>";
+  $("cpMain").querySelectorAll("[data-cpcc]").forEach((b) => b.onclick = () => ccOpen(b.dataset.cpcc));
+  const c = d.counts, tot = d.rows.length || 1;
+  const agreeN = (c["Both methods"] || 0) + (c["Neither"] || 0);
+  $("cpSide").innerHTML = `<h4 style="margin:0 0 6px">Summary</h4>
+    <p class="hint" style="margin:0 0 8px">The two methods agree on <b>${agreeN} of ${d.rows.length}</b> columns (${Math.round(100 * agreeN / tot)}%).</p>
+    ${Object.keys(AG).map((k) => `<div style="display:flex;justify-content:space-between;margin:3px 0"><span style="padding:1px 8px;border-radius:8px;background:${AG[k][0]};color:${AG[k][1]};font-weight:600">${k}</span><b>${c[k] || 0}</b></div>`).join("")}
+    <h4 style="margin:14px 0 4px">How each method decides</h4>
+    <p class="hint" style="margin:0 0 6px"><b>Spearman / V</b> looks at the whole column at once: <b>yes</b> when |&rho;| or V &ge; ${d.threshold} and p &lt; ${d.alpha}.
+      &rho; = trend across road segments (crashes / mi); V = difference in the share of ${esc(g1)} crashes across the column&rsquo;s categories, per crash.</p>
+    <p class="hint" style="margin:0 0 6px"><b>Binomial test</b> (current HRN method) looks at one value at a time: <b>yes</b> when at least one value is
+      <span style="background:#dde7f5;padding:0 4px;border-radius:4px">Network</span> (pF &gt; pN), <span style="background:#fff2cc;padding:0 4px;border-radius:4px">Tot Crash</span> (pF &gt; pC) or
+      <span style="background:#d9ead3;padding:0 4px;border-radius:4px">Both</span>, one-sided, p &lt; ${d.alpha}${d.min_n ? `, at least ${d.min_n} crashes` : ""}${d.min_ratio ? `, ratio &ge; ${d.min_ratio}` : ""}.</p>
+    <h4 style="margin:14px 0 4px">Why they can differ</h4>
+    <p class="hint" style="margin:0 0 4px"><b>Binomial only</b>: one value stands out (e.g. one road class) but the column has no overall trend, or the effect is in one small group.</p>
+    <p class="hint" style="margin:0 0 4px"><b>Spearman / V only</b>: a gradual trend across many values, none of which is significant on its own; or a value with too few crashes for the minimum.</p>
+    <p class="hint" style="margin:0">Spearman can only check pN-style rates (per mile) and V only pC-style shares (per crash); the binomial test checks both.</p>`;
+}
+["cpAlpha", "cpMinN", "cpMinRatio", "cpThr"].forEach((id) => $(id).onchange = () => { if (!$("cpOverlay").classList.contains("hidden")) cpRun(); });
+$("cpClose").onclick = () => { $("cpOverlay").classList.add("hidden"); if (S.scan) renderScan(); };
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !$("cpOverlay").classList.contains("hidden") && $("ccOverlay").classList.contains("hidden")) $("cpClose").click();
+});
+$("cpXlsx").onclick = async () => {
+  const btn = $("cpXlsx"); btn.disabled = true;
+  try {
+    const res = await fetch("/api/compare-xlsx", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(cpPayload())});
+    if (!res.ok) { let msg = res.statusText; try { msg = (await res.json()).error || msg; } catch (e) { /* not JSON */ } throw new Error(msg); }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(await res.blob()); a.download = "hrn_method_comparison_" + setName(S.cur).replace(/[^\w-]+/g, "_") + ".xlsx"; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  } catch (err) { $("cpInfo").textContent = "Download failed: " + err.message; }
+  btn.disabled = false;
+};
+
+/* ---------- Column check: one row per value, binomial tests against pN and pC ---------- */
+function ccConds(column) {
+  const col = S.scan.columns.find((c) => c.column === column);
+  if (!col) return [];
+  return col.conditions.filter((c) => ["eq", "rng", "age"].includes(c.op)).sort((a, b) => a.ord - b.ord)
+    .map((c) => ({column: c.column, op: c.op, value: c.value, kind: c.kind}));
+}
+function ccPayload() {
+  return {focus: {column: S.focus.column, values: setTypes(S.cur)}, extra: S.extra, column: $("ccCol").value,
+    conditions: ccConds($("ccCol").value), alpha: +$("ccAlpha").value || 0.05, min_n: +$("ccMinN").value || 0,
+    min_ratio: +$("ccMinRatio").value || 0, group1_name: setName(S.cur)};
+}
+function ccOpen(column) {
+  if (!S.scan) return;
+  const cols = S.scan.columns.filter((c) => c.conditions.some((q) => ["eq", "rng", "age"].includes(q.op)));
+  const opts = [...cols].sort((a, b) => a.label.localeCompare(b.label, undefined, {numeric: true, sensitivity: "base"}));
+  $("ccCol").innerHTML = opts.map((c) => `<option value="${esc(c.column)}">${esc(c.label)}</option>`).join("");
+  $("ccCol").value = column;
+  if ($("ccMinN").value === "") $("ccMinN").value = $("fltCrashes").value || "";
+  $("ccOverlay").classList.remove("hidden");
+  ccRun();
+}
+async function ccRun() {
+  $("ccMain").innerHTML = '<div class="status">Calculating ...</div>'; $("ccSide").innerHTML = "";
+  try { S.cc = await api("/api/column-check", ccPayload()); ccRender(); }
+  catch (err) { $("ccMain").innerHTML = `<div class="status err">${esc(err.message)}</div>`; }
+}
+const pctF = (v, k = 1) => v == null ? "&ndash;" : (100 * v).toFixed(k) + "%";
+const pFmt = (v) => v == null ? "&ndash;" : v < 0.0001 ? "&lt;0.0001" : v.toFixed(4);
+const rFmt = (v) => v == null ? "&ndash;" : v.toFixed(2) + "&times;";
+function ccRender() {
+  const d = S.cc, road = d.source === "road";
+  let rows = d.rows.map((r, i) => Object.assign({i}, r));
+  const sort = $("ccSort").value;
+  if (sort === "cpm") rows.sort((a, b) => (b.cpm ?? -1) - (a.cpm ?? -1));
+  else if (sort === "nf") rows.sort((a, b) => b.NF - a.NF);
+  $("ccInfo").textContent = `${setName(S.cur)} \u00b7 ${fmt(d.F)} focus crashes of ${fmt(d.N)} \u00b7 ${road ? "road column" : "crash column (no network share)"}`;
+  const scol = S.scan.columns.find((c) => c.column === d.column);
+  const G2c = !!S.scan.has_group2;
+  const scond = (r) => scol && scol.conditions.find((q) => q.op === r.op && String(q.value) === String(r.value));
+  let h = `<table class="cc"><thead><tr><th title="Tick to use the value as a risk factor (same as ticking it in the table)">Factor</th><th>Value</th><th title="Segments with the value${road ? "" : " (where these crashes happened)"}">Segments</th><th>Miles</th>
+    <th title="Share of network miles with the value">pN</th><th title="All crashes with the value">All crashes</th><th title="Share of all crashes">pC</th>
+    <th title="Focus crashes with the value">NF</th><th title="Share of focus crashes">pF</th><th title="NF / miles">Crashes / mi</th>
+    <th>pF / pN</th><th title="One-sided binomial test vs pN">p (vs pN)</th><th>pF / pC</th><th title="One-sided binomial test vs pC">p (vs pC)</th>
+    <th>Based On</th><th>Weight</th>${G2c ? `<th title="${esc(g2Name())} crashes of this type with the value">${esc(g2Name())} #</th><th title="How many times more common ${esc(g2Name())} crashes are with this value than normal">${esc(g2Name())} &times; normal</th><th>${esc(g2Name())} Prob.</th>` : ""}</tr></thead><tbody>`;
+  rows.forEach((r) => {
+    const keep = ["Both", "Network", "Tot Crash"].includes(r.based_on);
+    const q = scond(r), on = q && S.selected.has(condKey(q));
+    h += `<tr class="${keep ? "" : "dim"}"><td style="text-align:center">${q ? `<input type="checkbox" data-cct="${r.i}" ${on ? "checked" : ""}>` : ""}</td><td><b>${esc(r.value)}</b></td><td>${fmt(r.segments)}</td><td>${r.miles == null ? "&ndash;" : r.miles.toFixed(1)}</td>
+      <td>${pctF(r.pN)}</td><td>${fmt(r.n_all)}</td><td>${pctF(r.pC)}</td><td><b>${fmt(r.NF)}</b></td><td>${pctF(r.pF)}</td>
+      <td>${r.cpm == null ? "&ndash;" : fmtCpm(r.cpm)}</td>
+      <td>${rFmt(r.r_net)}</td><td class="${r.p_net != null && r.p_net < d.alpha && r.pF > r.pN ? "sig" : ""}">${pFmt(r.p_net)}</td>
+      <td>${rFmt(r.r_tot)}</td><td class="${r.p_tot < d.alpha && r.pF > r.pC ? "sig" : ""}">${pFmt(r.p_tot)}</td>
+      <td class="bo ${r.based_on.replace(" ", "")}">${esc(r.based_on)}</td><td>${r.weight || ""}</td>`
+      + (G2c ? (q && q.g2 ? `<td>${fmt(q.g2.n)}</td><td class="${q.g2.lift != null && q.g2.lift >= 1.3 ? "sig" : ""}">${q.g2.lift == null ? "&ndash;" : q.g2.lift.toFixed(2) + "&times;"}</td><td class="${probClass(q.g2.prob)}">${pct(q.g2.prob)}</td>` : "<td></td><td></td><td></td>") : "")
+      + `</tr>`;
+  });
+  h += `</tbody></table>`;
+  h += `<div class="status" id="ccSel" style="margin-top:6px"></div>`;
+  h += `<p class="hint" style="margin-top:10px;max-width:900px"><b>NF</b> focus crashes with the value &middot; <b>pF</b> their share of all focus crashes &middot;
+    <b>pN</b> share of network miles with the value${road ? "" : " (not applicable to a crash column)"} &middot; <b>pC</b> share of all crashes with the value.
+    <b>p</b> = one-sided exact binomial test: the chance of seeing NF or more focus crashes if they fell on the value in proportion to pN (or pC); green = below &alpha; = ${d.alpha}.
+    <b>Network</b> = pF &gt; pN and significant; <b>Tot Crash</b> = pF &gt; pC and significant; <b>Both</b> = both (weight 2, otherwise 1).
+    Also requires NF &ge; ${d.min_n}${d.min_ratio ? ` and a ratio &ge; ${d.min_ratio}&times;` : ""}.</p>`;
+  $("ccMain").innerHTML = h;
+  const ccSelNote = () => {
+    const n = d.rows.filter((r) => { const q = scond(r); return q && S.selected.has(condKey(q)); }).length;
+    $("ccSel").textContent = n ? `${n} value${n > 1 ? "s" : ""} of this column ticked as factors for ${setName(S.cur)}.` : "Tick a value to use it as a risk factor.";
+  };
+  ccSelNote();
+  $("ccMain").querySelectorAll("[data-cct]").forEach((cb) => cb.onchange = () => {
+    const q = scond(d.rows[+cb.dataset.cct]);
+    if (!q) return;
+    cb.checked ? S.selected.set(condKey(q), q) : S.selected.delete(condKey(q));
+    updateSelCount(); ccSelNote();
+  });
+  // crash rate by value
+  const mx = Math.max(...rows.map((r) => r.cpm || 0), d.avg_cpm || 0) || 1;
+  let side = `<h3>Crash rate by value</h3><p class="hint" style="margin-top:0">${esc(setName(S.cur))} crashes per mile${road ? " of road with the value" : " of the segments where they happened"}. Dashed line = network average${d.avg_cpm != null ? ` (${fmtCpm(d.avg_cpm)}/mi)` : ""}.</p><div class="cc-bars">`;
+  rows.forEach((r) => {
+    const w = 100 * (r.cpm || 0) / mx;
+    side += `<div class="row"><span class="lb" title="${esc(r.value)}">${esc(r.value)}</span><span class="track"><span class="fill" style="width:${w}%"></span>${d.avg_cpm != null ? `<span class="avg" style="left:${100 * d.avg_cpm / mx}%"></span>` : ""}</span>
+      <span class="v">${r.cpm == null ? "&ndash;" : fmtCpm(r.cpm) + "/mi"} &middot; ${fmt(r.NF)}</span></div>`;
+  });
+  side += `</div>`;
+  const kept = d.rows.filter((r) => ["Both", "Network", "Tot Crash"].includes(r.based_on));
+  side += `<h3>Candidate risk factors</h3>` + (kept.length ? kept.map((r) => `<div style="margin:3px 0"><b>${esc(r.value)}</b> &ndash; ${esc(r.based_on)} (weight ${r.weight}), NF ${fmt(r.NF)}</div>`).join("")
+    : `<p class="hint">No value passes at these settings.</p>`);
+  if (!road) side += `<p class="hint">This is a crash column, so there is no network share (pN) and only the Tot Crash comparison applies.</p>`;
+  $("ccSide").innerHTML = side;
+}
+$("ccCol").onchange = ccRun;
+["ccAlpha", "ccMinN", "ccMinRatio"].forEach((id) => $(id).onchange = ccRun);
+$("ccSort").onchange = () => { if (S.cc) ccRender(); };
+$("ccClose").onclick = () => { $("ccOverlay").classList.add("hidden"); if (S.scan) renderScan(); };
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !$("ccOverlay").classList.contains("hidden")) { setTimeout(() => $("ccClose").click(), 0); }
+});
+$("ccXlsx").onclick = async () => {
+  const btn = $("ccXlsx"); btn.disabled = true;
+  try {
+    const res = await fetch("/api/column-check-xlsx", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(ccPayload())});
+    if (!res.ok) { let msg = res.statusText; try { msg = (await res.json()).error || msg; } catch (e) { /* not JSON */ } throw new Error(msg); }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(await res.blob()); a.download = "hrn_column_check_" + $("ccCol").value.replace(/[^\w-]+/g, "_") + ".xlsx"; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  } catch (err) { $("ccInfo").textContent = "Download failed: " + err.message; }
+  btn.disabled = false;
+};
+
+/* ---------- Correlation matrix (Spearman, across segments) ---------- */
+function cmColor(v) {
+  const stops = ["#104281", "#3987e5", "#9ec5f4", "#f0efec", "#f4b0a9", "#e34948", "#9b1f1f"];
+  const t = (Math.max(-1, Math.min(1, v)) + 1) / 2 * (stops.length - 1), i = Math.min(stops.length - 2, Math.floor(t)), f = t - i;
+  const a = stops[i].match(/\w\w/g).map((h) => parseInt(h, 16)), b = stops[i + 1].match(/\w\w/g).map((h) => parseInt(h, 16));
+  return "#" + a.map((x, j) => Math.round(x + (b[j] - x) * f).toString(16).padStart(2, "0")).join("");
+}
+const cmFmt = (v) => v == null ? "" : (v >= 0 ? "+" : "\u2212") + Math.abs(v).toFixed(2).replace(/^0/, "");
+/* ordered columns (numbers, ranges, yes/no, severity) go to Spearman; unordered text goes to Cramer's V */
+const ordMatch = (col) => { const f = $("ordFilter").value; return f === "all" || (f === "ordered") === !!col.ordered; };
+function colOrdered(c) {
+  if (S.cmOrders && S.cmOrders[c] && S.cmOrders[c].length) return true;
+  const col = S.scan && S.scan.columns.find((x) => x.column === c);
+  return !!(col && col.ordered);
+}
+function ordTag(col) {
+  return col.ordered
+    ? `<span class="tag ord" title="Ordered (${esc(col.order_how || "")}) &rarr; used in Spearman">ordered</span>`
+    : `<span class="tag unord" title="Unordered text &rarr; used in Cramer's V">unordered</span>`;
+}
+function cmPayload() {
+  return {focus: {column: S.focus.column, values: setTypes(S.cur)}, extra: S.extra,
+    group1_name: setName(S.cur), min_len: +$("cmMinLen").value || 0,
+    columns: cmColumns().filter((c) => cmPick(c).on && colOrdered(c)), orders: S.cmOrders || {},
+    zero_blank: cmColumns().filter((c) => cmPick(c).zero),
+    groups: cmGroups(), split_unordered: false};
+}
+/* number columns shown as ranges in the table (AADT 0-19999 ..., ages 16-20 ...) use the same groups in the matrix */
+function cmGroups() {
+  const out = {};
+  if (S.cmUseGroups === false || !S.scan) return out;
+  cmColumns().filter((c) => cmPick(c).on).forEach((c) => {
+    const col = S.scan.columns.find((x) => x.column === c);
+    if (!col) return;
+    const g = col.conditions.filter((q) => q.op === "rng" || q.op === "age").sort((a, b) => a.ord - b.ord);
+    if (g.length >= 2) out[c] = g.map((q) => ({op: q.op, value: q.value}));
+  });
+  return out;
+}
+/* click a cell (or a row name): what is inside the column(s), number or text, and how each value was ranked */
+const numShort = (v) => v == null ? "&ndash;" : Math.abs(v) >= 1000 ? Math.round(v).toLocaleString() : (+v.toFixed(3)).toString();
+function cmColHtml(i) {
+  const d = S.cm, p = (d.profiles || [])[i];
+  let h = `<div class="col"><h4>${esc(d.names[i])}<span class="cm-tag ${d.sources[i]}">${d.sources[i]}</span>`;
+  if (!p) return h + `</h4></div>`;
+  h += `<span class="kind ${p.kind}">${p.kind === "numbers" ? "Numbers" : "Text"}</span></h4>`;
+  h += `<div class="hint" style="margin:2px 0">Ranked as: <b>${esc(d.codings[i])}</b></div>`;
+  h += `<div class="hint" style="margin:2px 0">${fmt(p.n_values)} ${esc(p.over)} with a value${p.n_blank ? `, ${fmt(p.n_blank)} blank` : ""} &middot; ${fmt(p.n_distinct)} different values` +
+    (p.min != null ? ` &middot; min ${numShort(p.min)}, median ${numShort(p.median)}, max ${numShort(p.max)}` : "") +
+    (p.zeros != null ? ` &middot; ${fmt(p.zeros)} segments with 0` : "") + `</div>`;
+  if (d.sources[i] === "crash") h += `<div class="hint" style="margin:2px 0">In the matrix each segment gets the ${d.codings[i].startsWith("share") ? "share" : "average"} of its crashes&rsquo; numbers below.</div>`;
+  if (p.items && p.items.length) {
+    h += `<div class="vals"><table><thead><tr><th>Value in the data</th><th class="n">Count</th><th class="n">Ranked as</th></tr></thead><tbody>` +
+      p.items.map((it) => `<tr><td>${esc(it.value)}</td><td class="n">${fmt(it.count)}</td>${it.code == null ? `<td class="n blank">blank (not used)</td>` : `<td class="n">${numShort(it.code)}</td>`}</tr>`).join("") +
+      `</tbody></table>${p.more ? `<div class="status">${fmt(p.more)} more values not listed.</div>` : ""}</div>`;
+  }
+  return h + `</div>`;
+}
+function cmCard(i, j) {
+  const d = S.cm, card = $("cmCard");
+  let h = `<button class="x" title="Close">&times;</button>`;
+  if (j != null) {
+    const v = d.rho[i][j];
+    const dir = v == null ? "" : Math.abs(v) < 0.1 ? "No real relationship." :
+      `Segments that rank higher on <b>${esc(d.names[j])}</b> tend to rank <b>${v > 0 ? "higher" : "lower"}</b> on <b>${esc(d.names[i])}</b>` +
+      ` (${Math.abs(v) >= 0.7 ? "very strong" : Math.abs(v) >= 0.5 ? "strong" : Math.abs(v) >= 0.3 ? "moderate" : "weak"}).`;
+    h += `<div style="margin-bottom:10px;font-size:13px"><b style="font-size:16px">&rho; = ${v == null ? "&ndash;" : v.toFixed(3)}</b> &nbsp;using ${fmt(d.n[i][j])} segments &nbsp; ${dir}
+      <div class="hint" style="margin-top:2px">&ldquo;Higher&rdquo; follows the <b>Ranked as</b> numbers below &mdash; check them to read the sign the right way round.</div></div>`;
+    h += `<div class="cols">${cmColHtml(j)}${cmColHtml(i)}</div>`;
+  } else {
+    h += `<div class="cols">${cmColHtml(i)}</div>`;
+  }
+  card.innerHTML = h;
+  card.classList.remove("hidden");
+  card.querySelector(".x").onclick = () => card.classList.add("hidden");
+}
+/* which columns go into the matrix (user's choice, remembered for the session); default: all, 0 kept */
+S.cmPicks = {};
+function cmPick(col) { return S.cmPicks[col] || (S.cmPicks[col] = {on: true, zero: false}); }
+function cmPickerHtml() {
+  const cols = cmColumns().filter(colOrdered);
+  const nOn = cols.filter((c) => cmPick(c).on).length;
+  const label = (c) => c.startsWith("road:") ? "Road: " + c.slice(5) : c;
+  return `<details id="cmPickBox" ${S.cmPickOpen ? "open" : ""}><summary style="color:var(--ink);font-weight:600;font-size:13.5px">Columns in the matrix (${nOn} of ${cols.length})</summary>
+    <p class="hint" style="margin:4px 0">Choose the meaningful columns, then click <b>Build matrix</b>. Tick <b>0 = blank</b> where 0 means &ldquo;not recorded&rdquo; (e.g. speed limit, AADT).</p>
+    <div class="actions" style="margin:2px 0">
+      <button class="link" data-pk="all">all</button><button class="link" data-pk="none">none</button>
+      <button class="link" data-pk="road">road only</button><button class="link" data-pk="crash">crash only</button>
+    </div>
+    <div class="cm-pick">${cols.map((c, i) => `<div class="r"><input type="checkbox" data-pon="${i}" ${cmPick(c).on ? "checked" : ""}>
+      <span class="nm" title="${esc(label(c))}">${esc(label(c))}<span class="cm-tag ${c.startsWith("road:") ? "road" : "crash"}">${c.startsWith("road:") ? "road" : "crash"}</span></span>
+      <label title="Treat 0 as not recorded"><input type="checkbox" data-pz="${i}" ${cmPick(c).zero ? "checked" : ""}> 0 = blank</label></div>`).join("")}</div>
+    <label style="display:flex;gap:6px;font-weight:400;margin:6px 0 2px"><input type="checkbox" id="cmUseGroups" ${S.cmUseGroups !== false ? "checked" : ""}> number columns in ranges use the table&rsquo;s groups (e.g. AADT 0-19999, age 16-20)</label>
+    <p class="hint" style="margin:2px 0 6px">Only <b>ordered</b> columns are listed here. Unordered columns (e.g. lighting, road system) go to Cram&eacute;r&rsquo;s V.</p>
+    <button class="btn" id="cmBuild" style="padding:5px 12px">Build matrix</button></details>`;
+}
+function cmBindPicker() {
+  const cols = cmColumns().filter(colOrdered);
+  const box = $("cmPickBox");
+  if (!box) return;
+  box.ontoggle = () => { S.cmPickOpen = box.open; };
+  box.querySelectorAll("[data-pon]").forEach((cb) => cb.onchange = () => { cmPick(cols[+cb.dataset.pon]).on = cb.checked; cmSummary(); });
+  box.querySelectorAll("[data-pz]").forEach((cb) => cb.onchange = () => { cmPick(cols[+cb.dataset.pz]).zero = cb.checked; });
+  box.querySelectorAll("[data-pk]").forEach((b) => b.onclick = () => {
+    const k = b.dataset.pk;
+    cols.forEach((c) => { cmPick(c).on = k === "all" || (k === "road" && c.startsWith("road:")) || (k === "crash" && !c.startsWith("road:")); });
+    box.querySelectorAll("[data-pon]").forEach((cb) => cb.checked = cmPick(cols[+cb.dataset.pon]).on);
+    cmSummary();
+  });
+  $("cmUseGroups").onchange = (e) => { S.cmUseGroups = e.target.checked; };
+  $("cmBuild").onclick = cmRun;
+}
+function cmSummary() {
+  const cols = cmColumns().filter(colOrdered), s = $("cmPickBox") && $("cmPickBox").querySelector("summary");
+  if (s) s.textContent = `Columns in the matrix (${cols.filter((c) => cmPick(c).on).length} of ${cols.length})`;
+}
+/* one variable per column: the categories currently shown in the table, in table order */
+function cmColumns() {
+  const out = [];
+  (S.shownConds || []).forEach((c) => { if (!out.includes(c.column)) out.push(c.column); });
+  if ($("viewMode").value !== "values") (S.belowCols || []).forEach((c) => { if (!out.includes(c)) out.push(c); });
+  return out;
+}
+async function cmRun() {
+  $("cmGrid").innerHTML = '<div class="status">Calculating ...</div>';
+  $("cmSide").innerHTML = cmPickerHtml(); cmBindPicker();
+  if (!cmColumns().some((c) => cmPick(c).on && colOrdered(c))) { $("cmGrid").innerHTML = '<div class="status warn">No <b>ordered</b> column is ticked. Tick ordered columns (numbers, ranges, yes/no) on the right or in the table.</div>'; S.cmPickOpen = true; $("cmPickBox").open = true; return; }
+  try { S.cm = await api("/api/correlation", cmPayload()); S.cmFor = S.cur; cmRender(); renderScreening(); }
+  catch (err) { $("cmGrid").innerHTML = `<div class="status err">${esc(err.message)}</div>`; }
+}
+function cmRender() {
+  const d = S.cm, thr = +$("cmThr").value || 0.7, outs = new Set(d.outcome);
+  // after-build filters: hiding a variable never changes the other values (rho is computed pair by pair)
+  const mains = d.main_outcome || d.outcome;
+  const show = $("cmShow").value, minRho = +$("cmMinRho").value || 0, o0 = mains[0];
+  const same = (i, j) => d.colof && d.colof[i] === d.colof[j];
+  const vis = d.names.map((_, i) => i).filter((i) => outs.has(i) || (
+    (show === "all" || d.sources[i] === show) &&
+    (minRho <= 0 || (d.rho[o0][i] != null && Math.abs(d.rho[o0][i]) >= minRho))));
+  const k = vis.length, nHidden = d.names.length - k;
+  $("cmInfo").textContent = `${setName(S.cur)} \u00b7 ${k - d.outcome.length} columns shown` + (nHidden ? ` (${nHidden} hidden by filters)` : "") + (d.skipped.length ? ` \u00b7 ${d.skipped.length} left out` : "") + ` \u00b7 ${fmt(d.n_segments)} segments` +
+    (d.n_dropped ? ` (${fmt(d.n_dropped)} shorter than ${d.min_len} mi left out)` : "") + ` \u00b7 ${fmt(d.n_with_crashes)} with crashes`;
+  const tag = (src) => `<span class="cm-tag ${src}">${src === "outcome" ? "outcome" : src}</span>`;
+  let h = `<div class="cm-legend"><span>&minus;1 opposite order</span><span class="scale"></span><span>+1 same order</span>
+    <span style="margin-left:14px">dashed = |&rho;| &ge; ${thr} between two variables &middot; gold rows = crash outcomes &middot; hover a cell for details</span></div>`;
+  const num = {};
+  vis.forEach((i, n) => { num[i] = n + 1; });
+  h += `<table class="cm"><thead><tr><th class="rl">#&nbsp; Variable</th>${vis.map((j) => `<th title="${esc(d.names[j])}">${num[j]}</th>`).join("")}</tr></thead><tbody>`;
+  for (const i of vis) {
+    h += `<tr class="${outs.has(i) ? "out" : ""}"><th class="rl ${outs.has(i) ? "out" : ""}" data-i="${i}" title="${esc(d.names[i] + " \u2014 " + d.codings[i] + "\nClick to see the values and how each relates to the crash type and KSI")}">${num[i]}.&nbsp; ${esc(d.names[i])}${tag(d.sources[i])}</th>`;
+    for (const j of vis) {
+      if (j > i) break;
+      if (i === j) { h += `<td class="diag">1</td>`; continue; }
+      const v = d.rho[i][j];
+      if (v == null) { h += `<td title="Not enough segments with both values" style="background:#f6f6f4"></td>`; continue; }
+      if (same(i, j)) {  // two values of one column: linked by construction
+        h += `<td data-i="${i}" data-j="${j}" style="background:#f3f3f1;color:#a3a9b1" title="${esc(d.names[i] + "\n" + d.names[j] + "\nSame column: values of one column are linked by construction (rho " + v.toFixed(3) + ")")}">${cmFmt(v)}</td>`;
+        continue;
+      }
+      const red = Math.abs(v) >= thr && !outs.has(i) && !outs.has(j);
+      const tip = `${d.names[i]} (${d.codings[i]})\n${d.names[j]} (${d.codings[j]})\nrho = ${v.toFixed(3)} (${fmt(d.n[i][j])} segments)`;
+      h += `<td class="${red ? "red" : ""}" data-i="${i}" data-j="${j}" style="background:${cmColor(v)};color:${Math.abs(v) >= 0.55 ? "#fff" : "#1f2328"}" title="${esc(tip + "\nClick to see what is inside both columns")}">${cmFmt(v)}</td>`;
+    }
+    h += "</tr>";
+  }
+  $("cmGrid").innerHTML = h + "</tbody></table>";
+  $("cmGrid").querySelectorAll("td[data-i]").forEach((td) => td.onclick = () => cmCard(+td.dataset.i, +td.dataset.j));
+  $("cmGrid").querySelectorAll("th.rl[data-i]").forEach((th) => th.onclick = () => {
+    const c = d.colof && d.colof[+th.dataset.i];
+    if (c && !c.startsWith("__")) ccOpen(c); else cmCard(+th.dataset.i, null);
+  });
+
+  // side panel: column picker, ranking against each outcome, then redundant pairs
+  let side = cmPickerHtml();
+  mains.forEach((o) => {
+    const items = [];
+    for (const j of vis) if (!outs.has(j) && d.rho[o][j] != null) items.push([j, d.rho[o][j]]);
+    items.sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
+    side += `<h3>&rho; with ${esc(d.names[o])}</h3><p class="hint" style="margin-top:0">Which variables go with higher (red) or lower (blue) crash rates. Strongest first.</p>`;
+    side += items.slice(0, 25).map(([j, v]) => `<div class="cm-bar" title="${esc(d.names[j])} (${fmt(d.n[o][j])} segments)"><span class="lb">${num[j]}. ${esc(d.names[j])}</span>
+      <span class="track"><span class="mid"></span><span class="fill" style="background:${cmColor(v)};${v >= 0 ? `left:50%;width:${50 * v}%` : `right:50%;width:${-50 * v}%`}"></span></span><span class="v">${cmFmt(v)}</span></div>`).join("")
+      + (items.length > 25 ? `<div class="status">${items.length - 25} more in the matrix and the Excel download.</div>` : "");
+  });
+  const pairs = [];
+  for (const i of vis) for (const j of vis) {
+    if (j >= i) break;
+    const v = d.rho[i][j];
+    if (v != null && !outs.has(i) && !outs.has(j) && !same(i, j) && Math.abs(v) >= thr) pairs.push([i, j, v]);
+  }
+  pairs.sort((a, b) => Math.abs(b[2]) - Math.abs(a[2]));
+  side += `<h3>Possibly redundant pairs (|&rho;| &ge; ${thr})</h3>`;
+  side += pairs.length ? `<p class="hint" style="margin-top:0">These carry mostly the same information. Consider ticking only one of each pair.</p>` +
+      pairs.slice(0, 40).map(([i, j, v]) => `<div style="margin:3px 0"><b>${cmFmt(v)}</b> &nbsp;${num[i]}. ${esc(d.names[i])} &harr; ${num[j]}. ${esc(d.names[j])}</div>`).join("") +
+      (pairs.length > 40 ? `<div class="status">${pairs.length - 40} more in the Excel download.</div>` : "")
+    : `<p class="hint">None at this threshold.</p>`;
+  // columns left out because their values have no natural order; the user can type one
+  const notes = d.skipped.filter((sk) => sk.info);
+  if (notes.length) side += `<h3>Notes</h3>` + notes.map((sk) => `<div style="margin:3px 0">${esc(sk.label)}: <span class="status">${esc(sk.reason)}</span></div>`).join("");
+  if (d.skipped.some((sk) => !sk.info)) {
+    side += `<h3>Left out (${d.skipped.filter((sk) => !sk.info).length})</h3><p class="hint" style="margin-top:0">Columns that cannot be ranked.
+      For an unordered column you can put its values in order (one per line, low to high) and click Use order, or tick &ldquo;split unordered columns&rdquo; in the column list.</p>`;
+    side += d.skipped.map((sk, i) => sk.info ? "" : !sk.reason.startsWith("unordered") ? `<div style="margin:4px 0">${esc(sk.label)} <span class="status">${esc(sk.reason)}</span></div>` : `<details style="margin:4px 0"><summary>${esc(sk.label)} <span class="status">${esc(sk.reason)}</span></summary>
+      <textarea data-ord="${i}" rows="${Math.min(8, sk.values.length)}" style="width:100%;font:inherit;font-size:12px;margin-top:4px">${esc(sk.values.join("\n"))}</textarea>
+      <button class="btn secondary" data-useord="${i}" style="padding:4px 10px;margin-top:2px">Use order</button></details>`).join("");
+  }
+  const ordered = Object.keys(S.cmOrders || {});
+  if (ordered.length) {
+    side += `<h3>Your orders</h3>` + ordered.map((col) => `<div style="margin:3px 0">${esc(col.replace(/^road:/, "Road: "))} <button class="link" data-unord="${esc(col)}">remove</button></div>`).join("");
+  }
+  side += `<h3>How the variables are built</h3><p class="hint" style="margin-top:0">One variable per column shown in the table, one data row per road segment.
+    <b>Road</b> columns: the segment's own value (a number, the leading number of the value, or 1/0 for two values).
+    <b>Crash</b> columns: average over the segment's ${esc(setName(S.cur))} crashes (two values: the share with the &ldquo;1&rdquo; value); segments with crashes only.
+    <b>Outcomes</b>: crashes per mile on the segment. Hover a row name to see how it is ranked. Each pair uses the segments where both have a value.</p>`;
+  $("cmSide").innerHTML = side;
+  cmBindPicker();
+  $("cmSide").querySelectorAll("[data-useord]").forEach((b) => b.onclick = () => {
+    const i = +b.dataset.useord, sk = S.cm.skipped[i];
+    const lines = $("cmSide").querySelector(`textarea[data-ord="${i}"]`).value.split("\n").map((x) => x.trim()).filter(Boolean);
+    if (lines.length < 2) return;
+    S.cmOrders = Object.assign({}, S.cmOrders, {[sk.column]: lines});
+    cmRun();
+  });
+  $("cmSide").querySelectorAll("[data-unord]").forEach((b) => b.onclick = () => {
+    const o = Object.assign({}, S.cmOrders); delete o[b.dataset.unord]; S.cmOrders = o; cmRun();
+  });
+}
+$("cmOpen").onclick = () => {
+  if (!S.scan) return;
+  if (!cmColumns().length) { setStatus($("segRatesStatus"), "No columns are shown in the table.", "warn"); return; }
+  $("cmOverlay").classList.remove("hidden");
+  cmRun();
+};
+$("cmClose").onclick = () => { $("cmCard").classList.add("hidden"); $("cmOverlay").classList.add("hidden"); if (S.scan) renderScan(); };
+const cmSetAll = (fn) => { const vis = $("viewMode").value !== "values" && S.visibleCols ? S.visibleCols : cmColumns(); vis.forEach((c) => { cmPick(c).on = fn(c); }); if (S.scan) renderScan(); };
+$("cmAllOn").onclick = () => cmSetAll(() => true);
+$("cmAllOff").onclick = () => { (S.scan ? S.scan.columns.map((c) => c.column) : []).forEach((c) => { cmPick(c).on = false; }); if (S.scan) renderScan(); };
+try { const v = localStorage.getItem("hrn.ordFilter"); if (v) $("ordFilter").value = v; } catch (e) {}
+$("ordFilter").onchange = () => { try { localStorage.setItem("hrn.ordFilter", $("ordFilter").value); } catch (e) {} if (S.scan) renderScan(); };
+$("cmRoadOn").onclick = () => cmSetAll((c) => c.startsWith("road:"));
+$("cmRun").onclick = cmRun;
+$("cmThr").oninput = () => { if (S.cm) cmRender(); };
+$("cmShow").onchange = () => { if (S.cm) cmRender(); };
+$("cmMinRho").oninput = () => { if (S.cm) cmRender(); };
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape" || !$("ccOverlay").classList.contains("hidden") || !$("cvOverlay").classList.contains("hidden")) return;
+  if (!$("cmCard").classList.contains("hidden")) { $("cmCard").classList.add("hidden"); return; }
+  if (!$("cmOverlay").classList.contains("hidden")) $("cmClose").click();
+});
+$("cmXlsx").onclick = async () => {
+  const btn = $("cmXlsx"); btn.disabled = true;
+  try {
+    const res = await fetch("/api/correlation-xlsx", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(cmPayload())});
+    if (!res.ok) { let msg = res.statusText; try { msg = (await res.json()).error || msg; } catch (e) { /* not JSON */ } throw new Error(msg); }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(await res.blob()); a.download = "hrn_spearman_matrix_" + setName(S.cur).replace(/[^\w-]+/g, "_") + ".xlsx"; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  } catch (err) { $("cmInfo").textContent = "Download failed: " + err.message; }
+  btn.disabled = false;
+};
+
+$("segRates").onclick = async () => {
+  saveCur();
+  const sets = Object.entries(S.sets).filter(([k, st]) => st && st.selected && st.selected.size)
+    .map(([k, st]) => ({name: k === ALL && S.focus.values.length > 1 ? "All selected types" : setName(k), types: setTypes(k),
+      conditions: [...st.selected.values()].map((c) => ({column: c.column, op: c.op, value: c.value, kind: c.kind}))}));
+  if (!sets.length) { setStatus($("segRatesStatus"), "Tick at least one row first.", "warn"); return; }
+  const btn = $("segRates"); btn.disabled = true; setStatus($("segRatesStatus"), "Building workbook ...");
+  try {
+    const res = await fetch("/api/segment-rates", {method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({focus: {column: S.focus.column}, extra: S.extra, sets})});
+    if (!res.ok) { let msg = res.statusText; try { msg = (await res.json()).error || msg; } catch (e) { /* not JSON */ } throw new Error(msg); }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(await res.blob()); a.download = "hrn_segment_crash_rates.xlsx"; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    setStatus($("segRatesStatus"), "Downloaded.", "ok");
+  } catch (err) { setStatus($("segRatesStatus"), err.message, "err"); }
+  btn.disabled = false;
+};
 $("xlsxAll").onclick = () => downloadXlsx(S.focus.values.length > 1 ? [ALL, ...S.focus.values] : [ALL], $("xlsxAll"));
 $("byCol").onchange = () => { if (S.scan) runScan(); };
 $("showAll").onchange = () => { if (S.scan) renderScan(); };
+$("viewMode").onchange = () => { if (S.scan) renderScan(); try { localStorage.setItem("hrn.viewMode", $("viewMode").value); } catch (e) { /* ignore */ } };
+try { const v = localStorage.getItem("hrn.viewMode"); if (v) $("viewMode").value = v; } catch (e) { /* ignore */ }
+/* row filters: minimum focus crashes and minimum crashes / mi (blank = no filter) */
+const fltMinN = () => Math.max(0, +$("fltCrashes").value || 0);
+const fltMinCpm = () => Math.max(0, +$("fltCpm").value || 0);
+const passesFilter = (c) => c.n_focus >= fltMinN() && (fltMinCpm() <= 0 || (c.cpm != null && c.cpm >= fltMinCpm()));
+let fltTimer = null;
+["fltCrashes", "fltCpm"].forEach((id) => $(id).oninput = () => { clearTimeout(fltTimer); fltTimer = setTimeout(() => { if (S.scan) renderScan(); }, 200); });
+$("fltClear").onclick = () => { $("fltCrashes").value = ""; $("fltCpm").value = ""; if (S.scan) renderScan(); };
 $("catSort").onchange = () => { if (S.scan) renderScan(); try { localStorage.setItem("hrn.catSort", $("catSort").value); } catch (e) { /* ignore */ } };
 try { const v = localStorage.getItem("hrn.catSort"); if (v) $("catSort").value = v; } catch (e) { /* ignore */ }
 
+/* ---------- Simple view: one row per column ---------- */
+function renderColumnsView() {
+  const d = S.scan, B = d.breakdown ? d.breakdown.labels : [], G2 = d.has_group2;
+  const n1 = setName(S.cur), n2 = g2Name(), minN = d.min_focus || 1, A = d.all;
+  const levels = (col) => col.conditions.filter((q) => ["eq", "rng", "age"].includes(q.op));
+  const best = (conds, get) => {
+    let b = null;
+    conds.forEach((c) => { const g = get(c); if (!g || g.prob == null || g.prob < 0.95 || g.lift == null || g.lift <= 1 || g.n < minN) return; if (!b || g.lift > get(b).lift) b = c; });
+    return b;
+  };
+  let order = d.columns.map((col, ci) => ({col, ci}));
+  if ($("catSort").value === "name") order.sort((a, b) => a.col.label.localeCompare(b.col.label, undefined, {numeric: true, sensitivity: "base"}));
+  const shownConds = [], belowCols = [], visible = [];
+  let nShown = 0, nHiddenCols = 0;
+  let h = `<thead><tr>
+      <th rowspan="2" title="Ordered columns go to Spearman, unordered columns to Cramer's V">Use</th><th rowspan="2" class="l">Column</th><th rowspan="2" title="Number of different values">Values</th>
+      ${B.length ? `<th colspan="${B.length}" title="${esc(d.breakdown.column)}">Crash Frequency</th>` : ""}
+      <th colspan="2">Total</th><th colspan="2">${esc(n1)}</th>${G2 ? `<th colspan="2">${esc(n2)}</th>` : ""}
+      <th colspan="${G2 ? 2 : 1}" title="Highest &times; normal with Prob. &ge; 95% and at least the minimum crashes">Strongest value</th>
+      <th rowspan="2" title="Values of this column ticked as risk factors">Factors</th><th rowspan="2"></th>
+    </tr><tr>
+      ${B.map((b, i) => { const sh = (d.breakdown.short || B)[i]; return `<th title="${esc(b)}">${esc(sh.length > 8 ? sh.slice(0, 7) + "…" : sh)}</th>`; }).join("")}
+      <th>#</th><th>%</th><th>#</th><th>%</th>${G2 ? "<th>#</th><th>%</th>" : ""}<th>${esc(n1)}</th>${G2 ? `<th>${esc(n2)}</th>` : ""}
+    </tr></thead><tbody>
+    <tr class="allrow"><td></td><td class="f">All</td><td></td>${(A.by || []).map((v) => `<td>${fmt(v)}</td>`).join("")}
+      <td>${fmt(A.n_all)}</td><td>100%</td><td>${fmt(A.n_focus)}</td><td>100%</td>${G2 ? `<td>${fmt(A.n_g2)}</td><td>100%</td>` : ""}<td></td>${G2 ? "<td></td>" : ""}<td></td><td></td></tr>`;
+  order.forEach(({col}) => {
+    const lv = levels(col);
+    const kept = lv.filter(passesFilter);
+    if (!lv.length) { nHiddenCols++; return; }
+    if (kept.length === 0 && (fltMinN() > 0 || fltMinCpm() > 0)) { nHiddenCols++; belowCols.push(col); return; }
+    kept.forEach((c) => shownConds.push(c));
+    if (!ordMatch(col)) return;
+    nShown++; visible.push(col.column);
+    const sum = (f) => lv.reduce((a, c) => a + (f(c) || 0), 0);
+    const nAll = sum((c) => c.n_all), nF = sum((c) => c.n_focus), nG = G2 ? sum((c) => c.g2 && c.g2.n) : 0;
+    const by = B.map((_, i) => sum((c) => c.by && c.by[i]));
+    const b1 = best(kept, (c) => c.over ? {prob: c.prob, lift: c.lift, n: c.n_focus} : null);
+    const b2 = G2 ? best(kept, (c) => c.g2) : null;
+    const nTick = [...S.selected.values()].filter((c) => c.column === col.column).length;
+    const bestCell = (c, lift) => c ? `<b>${esc(factorText(c))}</b> <span class="status" style="margin:0">${lift.toFixed(2)}&times;</span>` : `<span class="status" style="margin:0">&ndash;</span>`;
+    h += `<tr><td class="cb"><input type="checkbox" data-cmon="${esc(col.column)}" ${cmPick(col.column).on ? "checked" : ""} title="Use in Spearman / Cramer's V"></td>
+      <td class="f"><span class="catname" data-col="${esc(col.column)}" title="Click to see the values">${esc(col.label)}</span><span class="tag ${col.source}">${col.source}</span>${ordTag(col)}
+        <label class="cmchk" style="display:inline-flex;margin-left:8px" title="In the matrices, treat 0 as not recorded"><input type="checkbox" data-cmzero="${esc(col.column)}" ${cmPick(col.column).zero ? "checked" : ""}> 0&nbsp;=&nbsp;blank</label></td>
+      <td>${lv.length}</td>${by.map((v) => `<td>${fmt(v)}</td>`).join("")}
+      <td>${fmt(nAll)}</td><td>${pct(nAll / d.n_universe)}</td><td>${fmt(nF)}</td><td>${pct(nF / d.n_focus)}</td>
+      ${G2 ? `<td>${fmt(nG)}</td><td>${A.n_g2 ? pct(nG / A.n_g2) : ""}</td>` : ""}
+      <td class="f" style="white-space:nowrap">${bestCell(b1, b1 && b1.lift)}</td>${G2 ? `<td class="f" style="white-space:nowrap">${bestCell(b2, b2 && b2.g2.lift)}</td>` : ""}
+      <td>${nTick || ""}</td><td><button class="link" data-vals="${esc(col.column)}">Values &rsaquo;</button></td></tr>`;
+  });
+  const belowShown = belowCols.filter(ordMatch);
+  belowShown.forEach((c) => visible.push(c.column));
+  if (!nShown && !belowShown.length) h += `<tr><td colspan="30" class="f" style="padding:10px">No ${$("ordFilter").value === "all" ? "" : $("ordFilter").value + " "}columns to show.</td></tr>`;
+  if (belowShown.length) {
+    h += `<tr class="allrow"><td></td><td class="f" colspan="30" style="padding:6px 4px">Below the filters (${belowShown.length}) &mdash; no single value reaches the min crashes / crash rate, but the column can still be used in Spearman / Cramer's V; click a name to see its values.</td></tr>`;
+    belowShown.forEach((col) => {
+      const lv = levels(col), sum = (f) => lv.reduce((a, c) => a + (f(c) || 0), 0);
+      const nAll = sum((c) => c.n_all), nF = sum((c) => c.n_focus), nG = G2 ? sum((c) => c.g2 && c.g2.n) : 0;
+      const nTick = [...S.selected.values()].filter((c) => c.column === col.column).length;
+      h += `<tr class="dim"><td class="cb"><input type="checkbox" data-cmon="${esc(col.column)}" ${cmPick(col.column).on ? "checked" : ""} title="Use in Spearman / Cramer's V"></td>
+        <td class="f"><span class="catname" data-col="${esc(col.column)}" title="Click to see the values">${esc(col.label)}</span><span class="tag ${col.source}">${col.source}</span>${ordTag(col)}
+          <label class="cmchk" style="display:inline-flex;margin-left:8px" title="In the matrices, treat 0 as not recorded"><input type="checkbox" data-cmzero="${esc(col.column)}" ${cmPick(col.column).zero ? "checked" : ""}> 0&nbsp;=&nbsp;blank</label></td>
+        <td>${lv.length}</td>${B.map((_, i) => `<td>${fmt(sum((c) => c.by && c.by[i]))}</td>`).join("")}
+        <td>${fmt(nAll)}</td><td>${pct(nAll / d.n_universe)}</td><td>${fmt(nF)}</td><td>${pct(nF / d.n_focus)}</td>
+        ${G2 ? `<td>${fmt(nG)}</td><td>${A.n_g2 ? pct(nG / A.n_g2) : ""}</td>` : ""}
+        <td class="f">&ndash;</td>${G2 ? `<td class="f">&ndash;</td>` : ""}
+        <td>${nTick || ""}</td><td><button class="link" data-vals="${esc(col.column)}">Values &rsaquo;</button></td></tr>`;
+    });
+  }
+  $("factorTable").innerHTML = h + "</tbody>";
+  S.shownConds = shownConds; S.belowCols = belowCols.map((c) => c.column); S.visibleCols = visible;
+  $("fltNote").textContent = belowCols.length && (fltMinN() > 0 || fltMinCpm() > 0) ? `${belowCols.length} column${belowCols.length > 1 ? "s" : ""} with no value above the limits moved to the bottom (still usable in the matrices).` : "";
+  $("factorTable").querySelectorAll(".catname[data-col]").forEach((sp) => sp.onclick = () => ccOpen(sp.dataset.col));
+  $("factorTable").querySelectorAll("[data-vals]").forEach((b) => b.onclick = () => ccOpen(b.dataset.vals));
+  $("factorTable").querySelectorAll("[data-cmon]").forEach((cb) => cb.onchange = () => { cmPick(cb.dataset.cmon).on = cb.checked; });
+  $("factorTable").querySelectorAll("[data-cmzero]").forEach((cb) => cb.onchange = () => { cmPick(cb.dataset.cmzero).zero = cb.checked; });
+  $("skipSummary").textContent = `Skipped columns (${d.skipped.length})`;
+  $("skipList").innerHTML = d.skipped.map((x) => `${esc(x.column)} &mdash; ${esc(x.reason)}`).join("<br>");
+  updateSelCount();
+  renderScreening();
+}
+
 function renderScan() {
   const d = S.scan, showAll = $("showAll").checked;
+  $("showAllWrap").classList.toggle("hidden", $("viewMode").value !== "values");
+  if ($("viewMode").value !== "values") {
+    const G2s = d.has_group2, n1s = setName(S.cur), n2s = g2Name();
+    $("scanSummary").innerHTML = `<b>${esc(n1s)}</b>: <b>${fmt(d.n_focus)}</b> of <b>${fmt(d.n_universe)}</b> crashes (<b>${(100 * d.base_rate).toFixed(1)}%</b> overall).`
+      + (G2s ? ` <b>${esc(n2s)}</b>: <b>${fmt(d.all.n_g2)}</b> crashes.` : "")
+      + ` ${d.columns.length} columns. Tick <b>Use</b> for the columns to screen, run Spearman / Cram&eacute;r&rsquo;s V, then open a column&rsquo;s <b>Values</b> to pick factors.`;
+    renderColumnsView();
+    return;
+  }
   const B = d.breakdown ? d.breakdown.labels : [];
   const G2 = d.has_group2;
   const n1 = setName(S.cur), n2 = g2Name();
@@ -665,15 +1634,15 @@ function renderScan() {
   let html = `<thead><tr>
       <th rowspan="2" title="Use as a factor">&#10003;</th><th rowspan="2" class="l">Category</th><th rowspan="2" class="l">Factor</th>
       ${B.length ? `<th colspan="${B.length}" title="${esc(d.breakdown.column)}">Crash Frequency</th>` : ""}
-      <th colspan="2">Total</th><th colspan="4">${esc(n1)}</th>${G2 ? `<th colspan="4">${esc(n2)}</th>` : ""}
+      <th colspan="2">Total</th><th colspan="5">${esc(n1)}</th>${G2 ? `<th colspan="4">${esc(n2)}</th>` : ""}
     </tr><tr>
       ${B.map((b, i) => { const sh = (d.breakdown.short || B)[i]; return `<th title="${esc(b)}">${esc(sh.length > 8 ? sh.slice(0, 7) + "…" : sh)}</th>`; }).join("")}
-      <th>#</th><th>%</th><th>#</th><th>%</th><th title="${XN_TIP}">&times; normal</th><th>Prob.</th>${G2 ? `<th>#</th><th>%</th><th title="${XN_TIP}">&times; normal</th><th>Prob.</th>` : ""}
+      <th>#</th><th>%</th><th>#</th><th>%</th><th title="${CPM_TIP}">Crashes / mi</th><th title="${XN_TIP}">&times; normal</th><th>Prob.</th>${G2 ? `<th>#</th><th>%</th><th title="${XN_TIP}">&times; normal</th><th>Prob.</th>` : ""}
     </tr></thead><tbody>`;
   const A = d.all;
   html += `<tr class="allrow"><td></td><td class="f">All</td><td></td>
     ${(A.by || []).map((v, i) => `<td ${i === 0 ? gs() : ""}>${fmt(v)}</td>`).join("")}
-    <td ${gs()}>${fmt(A.n_all)}</td><td></td><td ${gs()}>${fmt(A.n_focus)}</td><td></td><td>1.00</td><td></td>
+    <td ${gs()}>${fmt(A.n_all)}</td><td></td><td ${gs()}>${fmt(A.n_focus)}</td><td></td><td title="All focus crashes / all network miles">${A.cpm == null ? "" : fmtCpm(A.cpm)}</td><td>1.00</td><td></td>
     ${G2 ? `<td ${gs()}>${fmt(A.n_g2)}</td><td></td><td>1.00</td><td></td>` : ""}</tr>`;
 
   // strongest condition per category: highest x normal among clear (Prob >= 95%, above expected) rows
@@ -690,16 +1659,24 @@ function renderScan() {
   const xn = (v, isBest) => v == null ? "" : `${isBest ? "&#9733; " : ""}${v.toFixed(2)}`;
   const xnClass = (v, isBest) => isBest ? "xn-best" : (v != null && v >= 1.3 ? "xn-hi" : "");
 
-  let shown = 0;
+  let shown = 0, nRowsAll = 0, nRowsKept = 0, hiddenTicked = 0;
+  const shownConds = [];
+  S.shownConds = shownConds;
   const order = d.columns.map((col, ci) => ({col, ci}));
   if ($("catSort").value === "name") order.sort((a, b) => a.col.label.localeCompare(b.col.label, undefined, {numeric: true, sensitivity: "base"}));
   order.forEach(({col, ci}) => {
-    const b1 = bestOf(col.conditions, (c) => c.over ? {prob: c.prob, lift: c.lift, n: c.n_focus} : null);
-    const b2 = G2 ? bestOf(col.conditions, (c) => c.g2) : null;
+    const kept = col.conditions.filter(passesFilter);
+    const b1 = bestOf(kept, (c) => c.over ? {prob: c.prob, lift: c.lift, n: c.n_focus} : null);
+    const b2 = G2 ? bestOf(kept, (c) => c.g2) : null;
     let rows = col.conditions.map((c, k) => ({c, k}));
+    nRowsAll += rows.length;
+    rows.forEach(({c}) => { if (!passesFilter(c) && S.selected.has(condKey(c))) hiddenTicked++; });
+    rows = rows.filter((r) => passesFilter(r.c));
+    nRowsKept += rows.length;
     if (showAll) rows.sort((a, b) => a.c.ord - b.c.ord);
     else rows = rows.filter((r) => r.c.over);
-    if (!rows.length) return;
+    rows.forEach((r) => shownConds.push(r.c));
+    if (!rows.length || !ordMatch(col)) return;
     shown++;
     rows.forEach(({c, k}, i) => {
       const key = condKey(c), sel = S.selected.has(key), exp = c.n_focus - c.excess;
@@ -710,23 +1687,33 @@ function renderScan() {
       const cls = [sel ? "sel" : "", c.over ? "" : "dim", i === rows.length - 1 ? "lastrow" : ""].join(" ");
       html += `<tr data-key="${esc(key)}" title="${esc(tip)}" class="${cls}">
         <td class="cb"><input type="checkbox" data-ci="${ci}" data-k="${k}" ${sel ? "checked" : ""}></td>`
-        + (i === 0 ? `<td class="cat" rowspan="${rows.length}">${esc(col.label)}<span class="tag ${col.source}">${col.source}</span></td>` : "")
+        + (i === 0 ? `<td class="cat" rowspan="${rows.length}"><span class="catname" data-col="${esc(col.column)}" title="Click for the column check (binomial tests, crash rate by value)">${esc(col.label)}</span><span class="tag ${col.source}">${col.source}</span>
+            <div class="cmchk"><label title="Use this column in the correlation matrix"><input type="checkbox" data-cmon="${esc(col.column)}" ${cmPick(col.column).on ? "checked" : ""}> matrix</label>
+            <label title="In the matrix, treat 0 as not recorded"><input type="checkbox" data-cmzero="${esc(col.column)}" ${cmPick(col.column).zero ? "checked" : ""}> 0&nbsp;=&nbsp;blank</label></div></td>` : "")
         + `<td class="f">${esc(factorText(c))}</td>`
         + (c.by || []).map((v, j) => `<td ${j === 0 ? gs() : ""}>${fmt(v)}</td>`).join("")
         + `<td ${gs()}>${fmt(c.n_all)}</td><td>${pct(c.pct_all)}</td>`
-        + `<td ${gs()}>${fmt(c.n_focus)}</td><td>${pct(c.share)}</td><td class="${xnClass(c.lift, c === b1)}">${xn(c.lift, c === b1)}</td><td class="${probClass(c.prob)}">${pct(c.prob)}</td>`
+        + `<td ${gs()}>${fmt(c.n_focus)}</td><td>${pct(c.share)}</td><td title="${c.miles == null ? "" : col.source === "road" ? fmtMi(c.miles) + " mi of road with this attribute" : fmtMi(c.miles) + " mi: the " + fmt(c.n_segs) + " segments where these crashes happened"}">${c.cpm != null ? fmtCpm(c.cpm) : ""}</td><td class="${xnClass(c.lift, c === b1)}">${xn(c.lift, c === b1)}</td><td class="${probClass(c.prob)}">${pct(c.prob)}</td>`
         + (G2 && c.g2 ? `<td ${gs()}>${fmt(c.g2.n)}</td><td>${pct(c.g2.share)}</td><td class="${xnClass(c.g2.lift, c === b2)}">${xn(c.g2.lift, c === b2)}</td><td class="${probClass(c.g2.prob)}">${pct(c.g2.prob)}</td>` : "")
         + `</tr>`;
     });
   });
-  if (!shown) html += `<tr><td colspan="20" class="f" style="padding:10px">No over-represented conditions. Tick &ldquo;show every value&rdquo; or lower the minimum crashes.</td></tr>`;
+  if (!shown) html += `<tr><td colspan="20" class="f" style="padding:10px">No rows to show. Lower the filters, or tick &ldquo;show every value&rdquo;.</td></tr>`;
+  const filtering = fltMinN() > 0 || fltMinCpm() > 0;
+  $("fltNote").textContent = filtering
+    ? `Filters hide ${fmt(nRowsAll - nRowsKept)} of ${fmt(nRowsAll)} rows.` + (hiddenTicked ? ` ${hiddenTicked} ticked row${hiddenTicked > 1 ? "s are" : " is"} hidden but still ticked.` : "")
+    : "";
   $("factorTable").innerHTML = html + "</tbody>";
-  $("factorTable").querySelectorAll("input[type=checkbox]").forEach((cb) => cb.onchange = () => {
+  $("factorTable").querySelectorAll(".catname[data-col]").forEach((sp) => sp.onclick = () => ccOpen(sp.dataset.col));
+  $("factorTable").querySelectorAll("[data-cmon]").forEach((cb) => cb.onchange = () => { cmPick(cb.dataset.cmon).on = cb.checked; });
+  $("factorTable").querySelectorAll("[data-cmzero]").forEach((cb) => cb.onchange = () => { cmPick(cb.dataset.cmzero).zero = cb.checked; });
+  $("factorTable").querySelectorAll("input[type=checkbox][data-ci]").forEach((cb) => cb.onchange = () => {
     const c = S.scan.columns[+cb.dataset.ci].conditions[+cb.dataset.k];
     cb.checked ? S.selected.set(condKey(c), c) : S.selected.delete(condKey(c));
     cb.closest("tr").classList.toggle("sel", cb.checked); updateSelCount();
   });
   $("skipSummary").textContent = `Skipped columns (${d.skipped.length})`;
+  renderScreening();
   $("skipList").innerHTML = d.skipped.map((s) => `${esc(s.column)} &mdash; ${esc(s.reason)}`).join("<br>");
   updateSelCount();
 }
@@ -744,6 +1731,7 @@ $("ruleBtn").onclick = () => {
   const meets = (prob, share) => prob != null && prob >= p && share >= s;
   S.selected = new Map();
   S.scan.columns.forEach((col) => col.conditions.forEach((c) => {
+    if (!passesFilter(c)) return;
     if (meets(c.prob, c.share) || (c.g2 && meets(c.g2.prob, c.g2.share))) S.selected.set(condKey(c), c);
   }));
   renderScan();
@@ -751,21 +1739,24 @@ $("ruleBtn").onclick = () => {
 $("topNBtn").onclick = () => {
   const n = Math.max(1, +$("topN").value || 1);
   S.selected = new Map();
-  S.scan.columns.filter((col) => col.has_over).slice(0, n).forEach((col) => S.selected.set(condKey(col.conditions[0]), col.conditions[0]));
+  // best over-represented condition per column (conditions are ranked strongest first), among rows that pass the filters
+  S.scan.columns.map((col) => col.conditions.find((c) => c.over && passesFilter(c))).filter(Boolean)
+    .slice(0, n).forEach((c) => S.selected.set(condKey(c), c));
   renderScan();
 };
 $("clearSel").onclick = () => { S.selected = new Map(); renderScan(); };
 $("to4").onclick = () => goStep(4);
 
-/* ---------- Step 4 ---------- */
-function ramp(k, K) {
-  const stops = ["#ffe08a", "#fdae61", "#f46d43", "#d73027", "#7f0000"];
-  const t = K <= 1 ? 1 : (k - 1) / (K - 1);
-  const x = Math.max(0, Math.min(1, t)) * (stops.length - 1), i = Math.min(stops.length - 2, Math.floor(x)), f = x - i;
-  const a = stops[i].match(/\w\w/g).map((h) => parseInt(h, 16)), b = stops[i + 1].match(/\w\w/g).map((h) => parseInt(h, 16));
-  return "#" + a.map((v, j) => Math.round(v + (b[j] - v) * f).toString(16).padStart(2, "0")).join("");
-}
-const colorFor = (k, K) => k === 0 ? "#8a97a6" : ramp(k, K);
+/* ---------- Step 4: systemic high-risk network ---------- */
+const TIERS = [
+  {k: 2, name: "Primary", color: "#c0392b", w: 4.5},
+  {k: 1, name: "Secondary", color: "#f39c12", w: 3.5},
+  {k: -1, name: "Other segments with factors", color: "#f2d16b", w: 2.2},
+  {k: 0, name: "No factors", color: "#b8c2cc", w: 1.2},
+];
+const tierOf = (r) => r.tier === 2 ? 2 : r.tier === 1 ? 1 : r.s > 0 ? -1 : 0;
+const tierInfo = (k) => TIERS.find((t) => t.k === k);
+const numFmt = (v) => v == null ? "" : (Math.round(v * 100) / 100).toString();
 
 let scoreTimer = null, scoreGroup = null, scoreItems = [];
 const filterCtl = L.control({position: "bottomleft"});
@@ -795,58 +1786,150 @@ function enterStep4() {
   else if (!hasAll) $("setMode").value = "each";
   else if (S.modeTouched !== true) $("setMode").value = "each";
   if (S.lastFocusKey !== JSON.stringify(S.focus)) { S.crashTypes = [...S.focus.values]; S.lastFocusKey = JSON.stringify(S.focus); }
+  if (!S.weights) S.weights = {};
+  if (!S.showT) S.showT = new Set([2, 1, -1]);
+  fillWithin();
   renderStep4Sets();
-  S.layersInit = false;
-  filterCtl._div.innerHTML = '<div class="t">Filter segments</div><div class="status">Scoring ...</div>';
+  filterCtl._div.innerHTML = '<div class="t">High-risk network</div><div class="status">Scoring ...</div>';
+  loadBasis();
   requestScore();
 }
+function fillWithin() {
+  const cur = $("hrnWithin").value;
+  const scan = S.scan || Object.values(S.sets).map((x) => x && x.scan).find(Boolean);
+  const cols = scan ? scan.columns.filter((c) => c.source === "road" && c.conditions.length <= 15) : [];
+  $("hrnWithin").innerHTML = '<option value="">whole network</option>'
+    + cols.map((c) => `<option value="${esc(c.column.slice(5))}">${esc(c.label.replace(/^Road: /, ""))} (${c.conditions.length} groups)</option>`).join("");
+  $("hrnWithin").value = cols.some((c) => c.column.slice(5) === cur) ? cur : "";
+}
 const step4Each = () => $("setMode").value === "each";
+function step4Sets() {
+  if (step4Each()) return S.crashTypes.filter((t) => S.sets[t] && S.sets[t].selected.size)
+    .map((t) => ({name: t, types: [t], sel: S.sets[t].selected}));
+  return [{name: g1Name(), types: [...S.crashTypes], sel: (S.sets[ALL] || {selected: new Map()}).selected}];
+}
+const wKey = (setName, c) => setName + "||" + condKey(c);
+const wGet = (setName, c) => { const v = S.weights[wKey(setName, c)]; return v == null ? 1 : v; };
 function renderStep4Sets() {
   const each = step4Each();
-  // in "each" mode only types that have their own factors can be mapped
   const types = each ? S.focus.values.filter((t) => S.sets[t] && S.sets[t].selected.size) : S.focus.values;
   const checked = S.crashTypes.filter((t) => types.includes(t));
   S.crashTypes = checked.length ? checked : [...types];
-  const list = (sel) => [...sel.values()].map((c) => "&bull; " + esc(c.label)).join("<br>");
-  if (each) {
-    const skipped = S.focus.values.filter((t) => !types.includes(t));
-    $("factorList").innerHTML = types.map((t) => `<b>${esc(t)}</b> (${S.sets[t].selected.size}):<br>${list(S.sets[t].selected)}`).join("<br>")
-      + (skipped.length ? `<div class="status warn" style="margin-top:6px">No factors picked for: ${skipped.map(esc).join(", ")} (go back to Step 3 to add them).</div>` : "");
-  } else {
-    const sel = (S.sets[ALL] || {selected: new Map()}).selected;
-    $("factorList").innerHTML = `<b>Factors applied to all selected types (${sel.size}):</b><br>` + list(sel);
-  }
   $("typeChecks").innerHTML = types.map((t) => `<label><input type="checkbox" data-t="${esc(t)}" ${S.crashTypes.includes(t) ? "checked" : ""}> <span>${esc(t)}</span></label>`).join("");
   $("typeChecks").querySelectorAll("input").forEach((cb) => cb.onchange = () => {
     S.crashTypes = [...$("typeChecks").querySelectorAll("input:checked")].map((x) => x.dataset.t);
-    requestScore();
+    renderWeights(); loadBasis(); requestScore();
+  });
+  renderWeights();
+}
+const BO_BG = {"Both": "#d9ead3", "Network": "#dde7f5", "Tot Crash": "#fff2cc", "Neither": "#f2f2f2"};
+function renderWeights() {
+  const sets = step4Sets();
+  const skipped = step4Each() ? S.focus.values.filter((t) => !(S.sets[t] && S.sets[t].selected.size)) : [];
+  let h = "";
+  sets.forEach((st) => {
+    const all = [...st.sel.values()];
+    const road = all.filter((c) => c.column.startsWith("road:")), crash = all.filter((c) => !c.column.startsWith("road:"));
+    // max score of this set: highest weight per column
+    const best = {};
+    road.forEach((c) => { best[c.column] = Math.max(best[c.column] || 0, +wGet(st.name, c) || 0); });
+    const mx = Object.values(best).reduce((a, b) => a + b, 0);
+    h += `<div style="font-weight:600;margin:4px 0 2px">${esc(st.name)} <span class="status" style="margin:0;font-weight:400">&middot; Max Score ${numFmt(mx)}</span></div>
+      <table class="cc" style="width:100%;margin-bottom:6px"><thead><tr><th class="l">Road factor</th><th title="Binomial test (Column check rules)">Based On</th><th>Weight</th></tr></thead><tbody>`;
+    if (!road.length) h += `<tr><td colspan="3" class="l" style="text-align:left"><span class="status warn" style="margin:0">No road factors for this crash type &mdash; nothing to map. Tick road factors in Step 3.</span></td></tr>`;
+    road.sort((x, y) => x.column.localeCompare(y.column)).forEach((c) => {
+      const bo = S.basis && S.basis[wKey(st.name, c)];
+      h += `<tr><td class="l" style="text-align:left;white-space:normal">${esc(c.label)}</td>
+        <td>${bo ? `<span style="padding:1px 6px;border-radius:6px;background:${BO_BG[bo] || "#f2f2f2"}">${esc(bo)}</span>` : "&hellip;"}</td>
+        <td><input type="number" min="0" step="0.5" value="${wGet(st.name, c)}" data-wk="${esc(wKey(st.name, c))}" style="width:64px;padding:2px 4px"></td></tr>`;
+    });
+    h += "</tbody></table>";
+    if (crash.length) h += `<div class="status" style="margin:0 0 8px">Crash profile, not scored (${crash.length}): ${crash.map((c) => esc(c.label)).join("; ")}</div>`;
+  });
+  if (skipped.length) h += `<div class="status warn">No factors picked for: ${skipped.map(esc).join(", ")} (go back to Step 3 to add them).</div>`;
+  $("weightBox").innerHTML = h;
+  $("weightBox").querySelectorAll("input[data-wk]").forEach((inp) => inp.onchange = () => {
+    const v = Math.max(0, +inp.value || 0); inp.value = v; S.weights[inp.dataset.wk] = v;
+    renderWeights(); requestScore();
   });
 }
-$("setMode").onchange = () => { S.modeTouched = true; renderStep4Sets(); requestScore(); };
-const factorPayload = (sel) => [...sel.values()].map((c) => ({column: c.column, op: c.op, value: c.value, kind: c.kind}));
-function scoreSets() {
-  if (step4Each()) return S.crashTypes.filter((t) => S.sets[t] && S.sets[t].selected.size)
-    .map((t) => ({name: t, types: [t], factors: factorPayload(S.sets[t].selected)}));
-  const sel = (S.sets[ALL] || {selected: new Map()}).selected;
-  return [{name: g1Name(), types: [...S.crashTypes], factors: factorPayload(sel)}];
+$("setMode").onchange = () => { S.modeTouched = true; renderStep4Sets(); loadBasis(); requestScore(); };
+const factorPayload = (st) => [...st.sel.values()].map((c) => ({column: c.column, op: c.op, value: c.value, kind: c.kind, weight: wGet(st.name, c)}));
+function scoreSets() { return step4Sets().map((st) => ({name: st.name, types: st.types, factors: factorPayload(st)})); }
+const binomOpts = () => ({alpha: +$("ccAlpha").value || 0.05, min_n: +$("ccMinN").value || 0, min_ratio: +$("ccMinRatio").value || 0});
+const hrnOpts = () => ({mode: $("hrnMode").value, primary: $("hrnP1").value === "" ? null : +$("hrnP1").value,
+  secondary: $("hrnP2").value === "" ? null : +$("hrnP2").value / ($("hrnMode").value === "score" ? 100 : 1) * 1,
+  within: $("hrnWithin").value || null});
+function hrnPayloadOpts() {
+  const o = hrnOpts();
+  if (o.mode === "score") { o.primary = (+$("hrnP1").value || 0) / 100; o.secondary = (+$("hrnP2").value || 0) / 100; }
+  return o;
 }
+async function loadBasis() {
+  const sets = scoreSets();
+  if (!sets.length || !S.crashTypes.length) return;
+  try {
+    const d = await api("/api/basis", {focus: S.focus, extra: S.extra, sets, binom: binomOpts()});
+    S.basis = {};
+    const st4 = step4Sets();
+    d.sets.forEach((ds, i) => {
+      const st = st4[i]; if (!st) return;
+      const conds = [...st.sel.values()];
+      ds.rows.forEach((r, k) => { if (conds[k]) S.basis[wKey(st.name, conds[k])] = r.based_on; });
+    });
+    renderWeights();
+  } catch (err) { setStatus($("wStatus"), "Based On: " + err.message, "err"); }
+}
+$("wAll1").onclick = () => { step4Sets().forEach((st) => st.sel.forEach((c) => { S.weights[wKey(st.name, c)] = 1; })); renderWeights(); requestScore(); setStatus($("wStatus"), "All weights set to 1.", "ok"); };
+$("wMount").onclick = async () => {
+  setStatus($("wStatus"), "Running the binomial test ...");
+  await loadBasis();
+  const P = {"Both": 2, "Network": 1, "Tot Crash": 1, "Neither": 0};
+  step4Sets().forEach((st) => st.sel.forEach((c) => { const bo = S.basis && S.basis[wKey(st.name, c)]; if (bo) S.weights[wKey(st.name, c)] = P[bo]; }));
+  renderWeights(); requestScore();
+  setStatus($("wStatus"), "Weights from Based On (Neither = 0). Edit any value.", "ok");
+};
+$("hrnMode").onchange = () => {
+  const sc = $("hrnMode").value === "score";
+  $("hrnP1Lbl").textContent = sc ? "Primary: score ≥ % of Max" : "Primary: top %";
+  $("hrnP2Lbl").textContent = sc ? "Secondary: score ≥ % of Max" : "Secondary: next %";
+  $("hrnP1").value = sc ? 75 : 5; $("hrnP2").value = sc ? 50 : 10;
+  requestScore();
+};
+["hrnP1", "hrnP2", "hrnWithin"].forEach((id) => $(id).onchange = requestScore);
+
 function requestScore() { clearTimeout(scoreTimer); scoreTimer = setTimeout(runScore, 250); }
 async function runScore() {
   if (!S.crashTypes.length) { setStatus($("scoreStatus"), "Tick at least one crash type.", "warn"); if (scoreGroup) { map.removeLayer(scoreGroup); scoreGroup = null; } return; }
-  setStatus($("scoreStatus"), "Scoring roads ...");
+  setStatus($("scoreStatus"), "Scoring the network ...");
   try {
-    const d = await api("/api/score", {focus: S.focus, extra: S.extra, sets: scoreSets(),
-      min_crashes: +$("minCrashes").value || 1, include_empty: $("includeEmpty").checked});
+    const d = await api("/api/score", {focus: S.focus, extra: S.extra, sets: scoreSets(), hrn: hrnPayloadOpts()});
     S.score = d;
-    const K = d.factors.length;
-    if (S.lastK !== K) { S.layersInit = false; S.lastK = K; }
-    if (!S.layersInit) { S.showK = new Set(); for (let k = 1; k <= K; k++) S.showK.add(k); S.layersInit = true; }
-    S.showK = new Set([...S.showK].filter((k) => k <= K));
-    buildScoreLayers(); renderFilterBox(); applyFilter();
-    setStatus($("scoreStatus"), `${fmt(d.n_focus_crashes)} focus crashes on ${fmt(d.n_roads_with_crashes)} road segments.`, "ok");
-  } catch (err) { setStatus($("scoreStatus"), err.message, "err"); }
+    buildScoreLayers(); renderFilterBox(); applyFilter(); renderHrnSummary();
+    setStatus($("scoreStatus"), "", "");
+  } catch (err) {
+    setStatus($("scoreStatus"), err.message, "err");
+    if (scoreGroup) { map.removeLayer(scoreGroup); scoreGroup = null; }
+    $("hrnSummary").innerHTML = "";
+  }
 }
-$("minCrashes").onchange = requestScore;
+function renderHrnSummary() {
+  const d = S.score, sm = d.summary, mi = (v) => v == null ? "" : `${v.toFixed(1)} mi`;
+  const pctMi = (v) => (v == null || !sm.miles) ? "" : ` (${(100 * v / sm.miles).toFixed(1)}% of miles)`;
+  let h = `<div><b>Network:</b> ${fmt(sm.segments)} segments, ${mi(sm.miles)} &middot; Max Score <b>${numFmt(d.max_score)}</b> &middot; ${fmt(sm.with_factor)} segments meet at least one factor</div>
+    <div style="margin-top:4px"><span style="display:inline-block;width:12px;height:12px;background:${tierInfo(2).color};border-radius:2px;vertical-align:-1px"></span>
+      <b>Primary</b>: ${fmt(sm.primary)} segments, ${mi(sm.primary_mi)}${pctMi(sm.primary_mi)} &middot; ${fmt(sm.focus_on_primary)} of ${fmt(d.n_focus_crashes)} focus crashes</div>
+    <div><span style="display:inline-block;width:12px;height:12px;background:${tierInfo(1).color};border-radius:2px;vertical-align:-1px"></span>
+      <b>Secondary</b>: ${fmt(sm.secondary)} segments, ${mi(sm.secondary_mi)}${pctMi(sm.secondary_mi)} &middot; ${fmt(sm.focus_on_secondary)} focus crashes</div>`;
+  if (d.mode === "top") h += `<div class="status" style="margin:4px 0 0">Ties at the cut-off are all included, so a tier can be larger than its %.</div>`;
+  if (d.within && d.groups.length > 1) {
+    h += `<table class="cc" style="width:100%;margin-top:6px"><thead><tr><th class="l">${esc(d.within)}</th><th>Segments</th><th>Primary</th><th>min. score</th><th>Secondary</th><th>min. score</th></tr></thead><tbody>`
+      + d.groups.map((g) => `<tr><td class="l" style="text-align:left">${esc(g.group)}</td><td>${fmt(g.segments)}</td><td>${fmt(g.primary)}</td><td>${numFmt(g.primary_min)}</td><td>${fmt(g.secondary)}</td><td>${numFmt(g.secondary_min)}</td></tr>`).join("")
+      + "</tbody></table>";
+  }
+  if (d.crash_factors.length) h += `<div class="status" style="margin:6px 0 0">Not scored (crash profile): ${d.crash_factors.map(esc).join("; ")}</div>`;
+  $("hrnSummary").innerHTML = h;
+}
 
 /* Step 4 exports: Word report and Excel */
 async function downloadReport(kind, btn) {
@@ -854,8 +1937,7 @@ async function downloadReport(kind, btn) {
   btn.disabled = true; setStatus($("repStatus"), "Building " + (kind === "docx" ? "report" : "workbook") + " ...");
   try {
     const title = $("reportTitle").value.trim() || "HRN Risk Factors";
-    const body = {focus: S.focus, extra: S.extra, sets: scoreSets(), min_crashes: +$("minCrashes").value || 1,
-      include_empty: $("includeEmpty").checked, title, top_n: 20,
+    const body = {focus: S.focus, extra: S.extra, sets: scoreSets(), hrn: hrnPayloadOpts(), binom: binomOpts(), title, top_n: 20,
       meta: {focus_column: S.focus.column, extra: S.extra ? `${S.extra.column}: ${S.extra.values.join(", ")}` : ""}};
     const res = await fetch("/api/report-" + kind, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
     if (!res.ok) { let msg = res.statusText; try { msg = (await res.json()).error || msg; } catch (e) { /* not JSON */ } throw new Error(msg); }
@@ -870,39 +1952,31 @@ async function downloadReport(kind, btn) {
 }
 $("repDocx").onclick = () => downloadReport("docx", $("repDocx"));
 $("repXlsx").onclick = () => downloadReport("xlsx", $("repXlsx"));
-$("includeEmpty").onchange = requestScore;
 
 function buildScoreLayers() {
   if (scoreGroup) map.removeLayer(scoreGroup);
   scoreGroup = L.layerGroup().addTo(map);
-  const K = S.score.factors.length;
-  scoreItems = S.score.roads.slice().sort((a, b) => a.n - b.n || a.c - b.c).map((r) => {
-    const f = S.features[r.id];
-    const layer = L.geoJSON(f, {renderer: canvas, style: {color: colorFor(r.n, K), weight: 2.5 + Math.min(4, Math.log2(1 + r.c)), opacity: 0.95}});
+  const order = {0: 0, "-1": 1, 1: 2, 2: 3};
+  const hasGeom = (f) => f && f.geometry && f.geometry.coordinates && f.geometry.coordinates.length;
+  scoreItems = S.score.roads.filter((r) => hasGeom((S.features || [])[r.id])).sort((a, b) => order[tierOf(a)] - order[tierOf(b)] || a.s - b.s).map((r) => {
+    const f = S.features[r.id], t = tierInfo(tierOf(r));
+    const layer = L.geoJSON(f, {renderer: canvas, style: {color: t.color, weight: t.w, opacity: t.k === 0 ? 0.6 : 0.95}});
     layer.on("click", (e) => showRoadPopup(e, f.properties, r));
-    return {row: r, layer};
+    return {row: r, t: t.k, layer};
   });
 }
 function renderFilterBox() {
-  const d = S.score, K = d.factors.length;
-  const minK = S.showK.size ? Math.min(...S.showK) : K;
-  let chips = "";
-  for (let k = 0; k <= K; k++) {
-    chips += `<button class="chip" data-k="${k}" style="border-color:${colorFor(k, K)}">${k}<small>${fmt(d.distribution[k] || 0)}</small></button>`;
-  }
-  filterCtl._div.innerHTML = `<div class="t">Filter segments by factors met</div>
-    <div>At least <b id="fbMin">${minK}</b> of ${K} factors</div>
-    <input type="range" id="fbSlider" min="0" max="${K}" step="1" value="${minK}">
-    <div class="chips">${chips}</div>
-    <div id="fbCount" class="status" style="margin-top:6px"></div>`;
-  $("fbSlider").oninput = (e) => {
-    const v = +e.target.value; $("fbMin").textContent = v;
-    S.showK = new Set(); for (let k = v; k <= K; k++) S.showK.add(k);
-    applyFilter();
-  };
-  filterCtl._div.querySelectorAll(".chip").forEach((c) => c.onclick = () => {
-    const k = +c.dataset.k; S.showK.has(k) ? S.showK.delete(k) : S.showK.add(k);
-    applyFilter();
+  const d = S.score;
+  const cnt = {}, mi = {};
+  d.roads.forEach((r) => { const k = tierOf(r); cnt[k] = (cnt[k] || 0) + 1; mi[k] = (mi[k] || 0) + (r.mi || 0); });
+  filterCtl._div.innerHTML = `<div class="t">High-risk network</div>`
+    + TIERS.map((t) => `<label style="display:flex;align-items:center;gap:6px;margin:3px 0;font-weight:400;cursor:pointer">
+        <input type="checkbox" data-tier="${t.k}" ${S.showT.has(t.k) ? "checked" : ""}>
+        <span style="display:inline-block;width:18px;height:${Math.max(3, t.w)}px;background:${t.color};border-radius:2px"></span>
+        <span>${t.name}</span><small style="margin-left:auto;color:#5b6470">${fmt(cnt[t.k] || 0)} &middot; ${(mi[t.k] || 0).toFixed(1)} mi</small></label>`).join("")
+    + `<div id="fbCount" class="status" style="margin-top:6px"></div>`;
+  filterCtl._div.querySelectorAll("input[data-tier]").forEach((cb) => cb.onchange = () => {
+    const k = +cb.dataset.tier; cb.checked ? S.showT.add(k) : S.showT.delete(k); applyFilter();
   });
 }
 let filterFrame = null;
@@ -911,30 +1985,25 @@ function applyFilter() {
   filterFrame = requestAnimationFrame(() => {
     filterFrame = null;
     if (!scoreGroup || !S.score) return;
-    const K = S.score.factors.length;
     scoreGroup.clearLayers();
-    const vis = scoreItems.filter((i) => S.showK.has(i.row.n));
+    const vis = scoreItems.filter((i) => S.showT.has(i.t));
     vis.forEach((i) => scoreGroup.addLayer(i.layer));
-    filterCtl._div.querySelectorAll(".chip").forEach((c) => {
-      const k = +c.dataset.k, on = S.showK.has(k);
-      c.classList.toggle("on", on); c.style.background = on ? colorFor(k, K) : "#fff";
-    });
-    const slider = $("fbSlider");
-    if (slider && S.showK.size) { const m = Math.min(...S.showK); slider.value = m; $("fbMin").textContent = m; }
     const ncr = vis.reduce((a, i) => a + i.row.c, 0);
     $("fbCount").textContent = `${fmt(vis.length)} segments shown, ${fmt(ncr)} focus crashes`;
-    setLegend(`Colour = # of ${K} factors met`);
+    setLegend(`HRN: score out of ${numFmt(S.score.max_score)}`);
     renderTop(vis.map((i) => i.row));
   });
 }
-function visibleRows() { return scoreItems.filter((i) => S.showK.has(i.row.n)).map((i) => i.row); }
+function visibleRows() { return scoreItems.filter((i) => S.showT.has(i.t)).map((i) => i.row); }
 
 async function showRoadPopup(e, props, r) {
-  const d = S.score;
+  const d = S.score, t = tierInfo(tierOf(r));
   let html = `<b>${esc(props.name || "Segment " + props.id)}</b> <small>(id ${props.id})</small><br>`;
-  html += `Factors met: <b>${r.n}</b> of ${d.factors.length}<br>`;
-  html += r.f.length ? r.f.map((i) => "&bull; " + esc(d.factors[i])).join("<br>") : "<i>none</i>";
-  html += `<br>Focus crashes: <b>${r.c}</b><br>` + d.types.map((t, i) => r.t[i] ? `&nbsp;&nbsp;${esc(t)}: ${r.t[i]}` : "").filter(Boolean).join("<br>");
+  html += `<span style="padding:1px 6px;border-radius:6px;background:${t.color};color:${t.k > 0 ? "#fff" : "#222"}">${t.name}</span><br>`;
+  html += `Score <b>${numFmt(r.s)}</b> of ${numFmt(d.max_score)} (${Math.round(100 * r.z)}%)`
+    + (r.rk != null ? ` &middot; top ${(100 * r.rk).toFixed(1)}%${d.within ? " of " + esc(r.g) : ""}` : "") + "<br>";
+  html += r.f.length ? r.f.map((i) => `&bull; ${esc(d.factors[i])} <small>(weight ${numFmt(d.weights[i])})</small>`).join("<br>") : "<i>no factors</i>";
+  html += `<br><small>Crash history (not used in the score): ${r.c} focus crash${r.c === 1 ? "" : "es"}` + (r.mi ? `, ${fmtMi(r.mi)} mi, ${fmtCpm(r.cpm)}/mi` : "") + "</small>";
   const popup = L.popup({maxWidth: 360}).setLatLng(e.latlng).setContent(html).openOn(map);
   try {
     const det = await apiGet("/api/road?id=" + props.id);
@@ -942,9 +2011,13 @@ async function showRoadPopup(e, props, r) {
     popup.setContent(html);
   } catch (err) { /* attribute lookup is optional */ }
 }
+const fmtMi = (v) => v == null ? "" : v < 0.1 ? v.toFixed(3) : v.toFixed(2);
+const fmtCpm = (v) => v == null ? "" : v >= 100 ? Math.round(v).toLocaleString() : v.toFixed(1);
 function renderTop(rows) {
-  const top = [...rows].sort((a, b) => b.n - a.n || b.c - a.c).slice(0, 15);
-  $("topRoads").innerHTML = top.map((r) => `<li data-id="${r.id}"><b>${esc(S.features[r.id].properties.name || "Segment " + r.id)}</b> &mdash; ${r.n} factors, ${r.c} crashes</li>`).join("") || "<li>No segments in the visible layers.</li>";
+  const top = [...rows].sort((a, b) => b.s - a.s || b.n - a.n || (b.mi || 0) - (a.mi || 0)).slice(0, 15);
+  const nm = (id) => { const f = (S.features || [])[id]; return (f && f.properties && f.properties.name) || "Segment " + id; };
+  $("topRoads").innerHTML = top.map((r) => `<li data-id="${r.id}"><b>${esc(nm(r.id))}</b> &mdash; ${tierInfo(tierOf(r)).name}, score ${numFmt(r.s)}/${numFmt(S.score.max_score)}`
+    + (r.mi ? `, ${fmtMi(r.mi)} mi` : "") + `, ${r.c} crashes</li>`).join("") || "<li>No segments in the visible layers.</li>";
   $("topRoads").querySelectorAll("li[data-id]").forEach((li) => li.onclick = () => {
     const b = L.geoJSON(S.features[+li.dataset.id]).getBounds(); map.fitBounds(b.pad(1.5), {maxZoom: 17});
   });
@@ -954,19 +2027,26 @@ function download(name, text, type) {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([text], {type})); a.download = name; a.click(); URL.revokeObjectURL(a.href);
 }
+const tierName = (r) => r.tier === 2 ? "Primary" : r.tier === 1 ? "Secondary" : "";
 $("expCsv").onclick = () => {
   if (!S.score) return;
   const d = S.score, q = (v) => '"' + String(v ?? "").replace(/"/g, '""') + '"';
-  const head = ["road_id", "name", "factors_met", "focus_crashes", ...d.types.map((t) => "crashes_" + t), "factors"];
+  const round = (v, k) => v == null ? "" : +v.toFixed(k);
+  const head = ["road_id", "name", "length_mi", "hrn", "score", "max_score", "score_pct", "top_pct_in_group", "group", "factors_met",
+    "focus_crashes", "crashes_per_mi", ...d.types.map((t) => "crashes_" + t), "factors"];
   const lines = [head.map(q).join(",")];
-  visibleRows().sort((a, b) => b.n - a.n || b.c - a.c).forEach((r) => lines.push([r.id, S.features[r.id].properties.name, r.n, r.c, ...r.t, r.f.map((i) => d.factors[i]).join("; ")].map(q).join(",")));
+  visibleRows().sort((a, b) => b.s - a.s).forEach((r) => lines.push([r.id, S.features[r.id].properties.name,
+    round(r.mi, 3), tierName(r), r.s, d.max_score, round(100 * r.z, 1), r.rk == null ? "" : round(100 * r.rk, 2), r.g, r.n,
+    r.c, round(r.cpm, 2), ...r.t, r.f.map((i) => d.factors[i]).join("; ")].map(q).join(",")));
   download("hrn_segments.csv", lines.join("\n"), "text/csv");
 };
 $("expGeo").onclick = () => {
   if (!S.score) return;
   const d = S.score;
   const feats = visibleRows().map((r) => ({type: "Feature", geometry: S.features[r.id].geometry,
-    properties: {road_id: r.id, name: S.features[r.id].properties.name, factors_met: r.n, focus_crashes: r.c, factors: r.f.map((i) => d.factors[i]).join("; ")}}));
+    properties: {road_id: r.id, name: S.features[r.id].properties.name, length_mi: r.mi, hrn: tierName(r), score: r.s,
+      max_score: d.max_score, score_pct: r.z, top_pct_in_group: r.rk, group: r.g, factors_met: r.n, focus_crashes: r.c,
+      crashes_per_mi: r.cpm, factors: r.f.map((i) => d.factors[i]).join("; ")}}));
   download("hrn_segments.geojson", JSON.stringify({type: "FeatureCollection", features: feats}), "application/geo+json");
 };
 
